@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: register-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: registerdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  register-service:
+    build: .
+    container_name: register-service
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - "3001:3001"
+
+volumes:
+  pgdata:

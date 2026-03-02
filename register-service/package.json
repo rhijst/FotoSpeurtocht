@@ -1,0 +1,29 @@
+{
+    "name": "register-service",
+    "version": "1.0.0",
+    "description": "Registration service for FotoSpeurtocht",
+    "main": "src/app.js",
+    "scripts": {
+        "start": "node src/app.js",
+        "dev": "nodemon src/app.js",
+        "test": "jest"
+    },
+    "keywords": [
+        "register",
+        "service"
+    ],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "bcrypt": "^6.0.0",
+        "dotenv": "^16.6.1",
+        "express": "^4.22.1",
+        "jsonwebtoken": "^9.0.3",
+        "pg": "^8.19.0",
+        "uuid": "^13.0.0"
+    },
+    "devDependencies": {
+        "jest": "^29.5.0",
+        "nodemon": "^2.0.20"
+    }
+}
