@@ -1,27 +1,23 @@
 version: '3.9'
 
 services:
-  postgres:
-    image: postgres:15
-    container_name: register-postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: registerdb
+  mongo:
+    image: mongo:7
+    container_name: register-mongo
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - mongodata:/data/db
 
   register-service:
     build: .
     container_name: register-service
     depends_on:
-      - postgres
+      - mongo
     env_file:
       - .env
     ports:
       - "3001:3001"
 
 volumes:
-  pgdata:
+  mongodata:
