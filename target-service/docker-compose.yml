@@ -1,0 +1,23 @@
+services:
+
+  mongo:
+    image: mongo:8
+    container_name: target-mongo
+    ports:
+      # External - External
+      - "27018:27017"
+    volumes:
+      - mongodata:/data/db
+
+  target-service:
+    build: .
+    container_name: target-service
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    ports:
+      - "3002:3002"
+
+volumes:
+  mongodata:
