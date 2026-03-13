@@ -4,6 +4,7 @@ const path = require("path");
 
 const connectDB = require("./config/db");
 const targetRoutes = require("./routes/targetRoutes");
+const { connectRabbit } = require("./config/rabbit");
 
 const app = express();
 
@@ -11,6 +12,9 @@ app.use(express.json());
 
 // connect database
 connectDB();
+
+// connect rabbitMQ
+connectRabbit();
 
 // routes
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));

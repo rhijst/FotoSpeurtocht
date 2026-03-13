@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+
+  gateway:
+    build: ./gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - register-service
+      - target-service
+
+  register-service:
+    build: ./register-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - rabbitmq
+      - mongo-register
+
+  target-service:
+    build: ./target-service
+    ports:
+      - "3002:3002"
+    volumes:
+      - uploads:/app/uploads
+
+    depends_on:
+        # - mongo-target
+        rabbitmq:
+          condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      retries: 5
+
+  mongo-register:
+    image: mongo:8
+    ports:
+      - "27017:27017"
+
+  mongo-target:
+    image: mongo:8
+    ports:
+      - "27018:27017"
+
+
+
+volumes:
+  uploads:

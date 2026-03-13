@@ -1,4 +1,6 @@
 const Target = require("../models/Target");
+const { getChannel } = require("../config/rabbit");
+
 
 exports.createTarget = async (req, res) => {
   try {
@@ -22,6 +24,19 @@ exports.createTarget = async (req, res) => {
     });
 
     await target.save();
+
+    const channel = getChannel();
+
+    channel.sendToQueue(
+      "target_created",
+      Buffer.from(
+        JSON.stringify({
+          targetId: target._id,
+          ownerId: target.ownerId,
+          deadline: target.deadline
+        })
+      )
+    );
 
     res.status(201).json(target);
 
