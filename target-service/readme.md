@@ -76,13 +76,9 @@ POST /targets
 
 Authentication required (JWT).
 
-Headers:
-
-Authorization: Bearer <token>
-
-Content-Type:
-
-multipart/form-data
+**Headers:**</br>
+**Authorization:** Bearer {token} </br>
+**Content-Type:** multipart/form-data
 
 Fields:
 
@@ -94,6 +90,17 @@ Fields:
 * radius: (number)
 * deadline: (date)
 * image: (file)
+
+Example Field:
+```title:Test
+description:First Test Description
+locationName:Kaztal District, Kazakhstan
+lat:50
+lng:50
+radius:10
+deadline:03-13-2026
+image (file)
+```
 
 Example response:
 
