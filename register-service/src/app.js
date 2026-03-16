@@ -12,7 +12,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 
 app.get('/status', (req, res) => {
-  res.json({ status: 'running' });
+  res.json({ status: 'Register service running ' });
 });
 
 app.listen(process.env.PORT, () => {
