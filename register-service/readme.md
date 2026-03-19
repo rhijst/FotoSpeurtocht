@@ -34,9 +34,9 @@ Create a `.env` file in the root of the service.
 
 Example:
 
-PORT=3001
-MONGO_URI=mongodb://mongo:27017/registerdb
-JWT_SECRET=supersecret
+PORT=3001 <br/>
+MONGO_URI=mongodb://mongo:27017/registerdb<br/>
+JWT_SECRET=supersecret<br/>
 
 
 ## Running with Docker

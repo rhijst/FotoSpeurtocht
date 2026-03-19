@@ -1,10 +1,10 @@
 const Target = require("../models/Target");
 const { getChannel } = require("../config/rabbit");
 
-
 exports.createTarget = async (req, res) => {
   try {
-
+    console.log("test");
+    console.log(req.file);
     const { title, description, locationName, lat, lng, radius, deadline } = req.body;
 
     const app_url = process.env.APP_URL

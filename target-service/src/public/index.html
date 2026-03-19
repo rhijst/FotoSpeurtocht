@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Target Service</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <h1>Targets</h1>
+
+  <form id="targetForm">
+    <input type="text" id="title" value="Target name" placeholder="Title" required />
+    <input type="text" id="description" value="target description" placeholder="Description" />
+    <input type="text" id="locationName" value="Location" placeholder="Location" />
+    <input type="number" id="lat" value="10" placeholder="Latitude" />
+    <input type="number" id="lng" value="20" placeholder="Longitude" />
+    <input type="number" id="radius" value="5" placeholder="Radius" />
+    <input type="date" id="deadline" value="2026-05-05" required/>
+    <input type="file" id="image" required />
+    <button type="submit">Create Target</button>
+  </form>
+
+  <hr />
+
+  <ul id="targetList"></ul>
+
+  <script src="app.js"></script>
+</body>
+</html>

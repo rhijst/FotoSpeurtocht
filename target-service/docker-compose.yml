@@ -18,6 +18,9 @@ services:
       - .env
     ports:
       - "3002:3002"
+    volumes:
+      - uploads:/app/uploads
 
 volumes:
   mongodata:
+  uploads:
