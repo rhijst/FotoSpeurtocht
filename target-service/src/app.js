@@ -27,10 +27,11 @@ app.get("/status", (req, res) => {
   res.json({ status: "Target service running" });
 });
 
+// Images
+// app.use("/uploads", express.static(uploadPath));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 app.listen(process.env.PORT, () => {
   console.log(`Target service running on port ${process.env.PORT}`);
 });
 
-// Images
-// app.use("/uploads", express.static(uploadPath));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));

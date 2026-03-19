@@ -1,5 +1,5 @@
 const API_URL = "http://localhost:3002";
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWI3ZTI0NzM0MmYyOWNkNGJjOWViNzYiLCJyb2xlIjoicGFydGljaXBhbnQiLCJpYXQiOjE3NzM5MTgzMDUsImV4cCI6MTc3MzkyMTkwNX0.pnHSXiZNAA9Ed7q5fT-8iE0mpp0kjRGJN97yToxSA14";
+const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWJiZTY3MGNiYjc0ZThhZWYzNTViMDIiLCJyb2xlIjoicGFydGljaXBhbnQiLCJpYXQiOjE3NzM5MjE5MDYsImV4cCI6MTc3MzkyNTUwNn0.C3DF5ENsweflU2fYzuBo_l-qu6L0ccDpNH5Cn-Mq8sE";
 const form = document.getElementById("targetForm");
 const list = document.getElementById("targetList");
 
