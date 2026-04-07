@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
@@ -11,7 +13,7 @@ Register Service
 app.use(
   "/auth",
   createProxyMiddleware({
-    target: "http://register-service:3001",
+    target: process.env.AUTH_SERVICE_URL,
     changeOrigin: true
   })
 );
@@ -22,7 +24,7 @@ Target Service
 app.use(
   "/targets",
   createProxyMiddleware({
-    target: "http://target-service:3002",
+    target: process.env.TARGET_SERVICE_URL,
     changeOrigin: true
   })
 );
@@ -34,6 +36,8 @@ app.get("/status", (req, res) => {
   res.json({ status: "Gateway running" });
 });
 
-app.listen(3000, () => {
-  console.log("Gateway running on port 3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Gateway running on port ${PORT}`);
 });
