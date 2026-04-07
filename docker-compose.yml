@@ -30,10 +30,11 @@ services:
     volumes:
       - ./target-service:/app
       - /app/node_modules
-      - uploads:/app/uploads
     depends_on:
       rabbitmq:
         condition: service_healthy
+      minio:
+        condition: service_started
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -42,7 +43,7 @@ services:
       - "5672:5672"
       - "15672:15672"
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: [ "CMD", "rabbitmqctl", "status" ]
       interval: 5s
       retries: 5
 
@@ -56,5 +57,20 @@ services:
     ports:
       - "27018:27017"
 
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
 volumes:
-  uploads:
+  minio_data:
+  mongo-register:
+  mongo-target:

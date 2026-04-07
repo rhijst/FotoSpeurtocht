@@ -1,5 +1,5 @@
 const API_URL = "http://localhost:3002";
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWJiZTY3MGNiYjc0ZThhZWYzNTViMDIiLCJyb2xlIjoicGFydGljaXBhbnQiLCJpYXQiOjE3NzM5MjE5MDYsImV4cCI6MTc3MzkyNTUwNn0.C3DF5ENsweflU2fYzuBo_l-qu6L0ccDpNH5Cn-Mq8sE";
+const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWQ0ZjAxYTE1MGQ0MzcwYWYzYzAxZTkiLCJyb2xlIjoicGFydGljaXBhbnQiLCJpYXQiOjE3NzU1NjI4OTUsImV4cCI6MTc3NTU2NjQ5NX0.qpPfwSz8QMKlKM3qc-uPlwRoNt3H8OXJ3p8Tm6UXWZE";
 const form = document.getElementById("targetForm");
 const list = document.getElementById("targetList");
 
@@ -14,13 +14,13 @@ async function loadTargets() {
     const li = document.createElement("li");
 
     li.innerHTML = `
-      <strong>${target.title}</strong><br/>
-      ${target.description || ""}
-      <br/>
-      <img src="${target.imageUrl}" width="100"/>
-      <br/>
-      <button onclick="deleteTarget('${target._id}')">Delete</button>
-    `;
+    <strong>${target.title}</strong><br/>
+    ${target.description || ""}
+    <br/>
+    <img src="${target.imageUrl}" width="100"/>
+    <br/>
+    <button onclick="deleteTarget('${target.id}')">Delete</button>
+  `;
 
     list.appendChild(li);
   });

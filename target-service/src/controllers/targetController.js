@@ -1,81 +1,128 @@
+// src/controllers/target.controller.js
 const Target = require("../models/Target");
-const { getChannel } = require("../config/rabbit");
+const s3 = require("../config/minio");
+const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { v4: uuidv4 } = require("uuid");
 
+const bucketName = process.env.MINIO_BUCKET || "targets";
+
+// ========================
+// CREATE TARGET
+// ========================
 exports.createTarget = async (req, res) => {
   try {
-    console.log("test");
-    console.log(req.file);
-    const { title, description, locationName, lat, lng, radius, deadline } = req.body;
+    const file = req.file;
+    if (!file) return res.status(400).json({ error: "No file uploaded" });
 
-    const app_url = process.env.APP_URL
-    const imageUrl = `${app_url}/uploads/${req.file.filename}`;
+    // Only allow image files
+    if (!file.mimetype.startsWith("image/")) {
+      return res.status(400).json({ error: "Invalid file type" });
+    }
+
+    // Generate unique key for MinIO
+    const key = `${uuidv4()}-${file.originalname}`;
+
+    // Upload to MinIO
+    await s3.send(new PutObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype
+    }));
+
+    // Build public URL for the frontend
+    const host = process.env.MINIO_HOST || "localhost:9000";
+    const imageUrl = `http://${host}/${bucketName}/${key}`;
+
+    // Save target to MongoDB
     const target = new Target({
-      ownerId: req.user.userId,
-      title,
-      description,
-      locationName,
+      ownerId: req.user.userId, // from auth middleware
+      title: req.body.title,
+      description: req.body.description,
+      locationName: req.body.locationName,
       coordinates: {
-        lat,
-        lng
+        lat: req.body.lat,
+        lng: req.body.lng
       },
-      radius,
-      deadline,
-      imageUrl
+      radius: req.body.radius,
+      deadline: req.body.deadline,
+      imageUrl,
+      imageKey: key // store key to delete the image later
     });
 
     await target.save();
-
-    const channel = getChannel();
-
-    channel.sendToQueue(
-      "target_created",
-      Buffer.from(
-        JSON.stringify({
-          targetId: target._id,
-          ownerId: target.ownerId,
-          deadline: target.deadline
-        })
-      )
-    );
-
     res.status(201).json(target);
 
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error("Error creating target:", err);
+    res.status(500).json({ error: err.message });
   }
 };
 
+// ========================
+// GET ALL TARGETS
+// ========================
 exports.getTargets = async (req, res) => {
   try {
-
     const targets = await Target.find();
 
-    res.json(targets);
+    const targetsForFrontend = targets.map(target => ({
+      id: target._id,
+      ownerId: target.ownerId,
+      title: target.title,
+      description: target.description,
+      locationName: target.locationName,
+      coordinates: target.coordinates,
+      radius: target.radius,
+      imageUrl: target.imageUrl,
+      deadline: target.deadline,
+      createdAt: target.createdAt,
+      updatedAt: target.updatedAt
+    }));
 
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json(targetsForFrontend);
+  } catch (err) {
+    console.error("Error fetching targets:", err);
+    res.status(500).json({ error: err.message });
   }
 };
 
-
+// ========================
+// DELETE TARGET
+// ========================
 exports.deleteTarget = async (req, res) => {
   try {
+    const { id } = req.params;
 
-    const target = await Target.findById(req.params.id);
+    if (!id) return res.status(400).json({ error: "Target ID is required" });
 
-    if (!target) {
-      return res.status(404).json({ error: "Target not found" });
+    // Ensure id is a valid Mongo ObjectId
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: "Invalid Target ID format" });
     }
 
-    if (target.ownerId !== req.user.userId) {
+    const target = await Target.findById(id);
+    if (!target) return res.status(404).json({ error: "Target not found" });
+
+    // Check ownership
+    if (target.ownerId.toString() !== req.user.userId) {
       return res.status(403).json({ error: "Not allowed" });
     }
 
-    await Target.findByIdAndDelete(req.params.id);
+    // Delete image from MinIO
+    if (target.imageKey) {
+      await s3.send(new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: target.imageKey
+      }));
+    }
 
-    res.json({ message: "Target deleted" });
+    // Delete target from MongoDB
+    await Target.findByIdAndDelete(id);
 
+    res.json({ message: "Target and associated image deleted" });
   } catch (error) {
+    console.error("Error deleting target:", error);
     res.status(500).json({ error: error.message });
   }
 };
