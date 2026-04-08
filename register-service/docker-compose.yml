@@ -1,5 +1,5 @@
 services:
-  mongo:
+  mongo-register:
     image: mongo:8.0
     container_name: register-mongo
     ports:
@@ -7,11 +7,23 @@ services:
     volumes:
       - mongodata:/data/db
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      retries: 5
+
   register-service:
     build: .
     container_name: register-service
     depends_on:
-      - mongo
+      - mongo-register
+      - rabbitmq
     env_file:
       - .env
     ports:
