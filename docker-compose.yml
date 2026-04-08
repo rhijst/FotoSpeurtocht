@@ -8,6 +8,8 @@ services:
     volumes:
       - ./gateway:/app
       - /app/node_modules
+    env_file:
+      - ./gateway/.env
     depends_on:
       - register-service
       - target-service

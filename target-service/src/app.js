@@ -11,6 +11,13 @@ const app = express();
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  if (req.headers['x-internal-secret'] !== process.env.INTERNAL_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+});
+
 // connect database
 connectDB();
 
