@@ -34,6 +34,9 @@ services:
       - .env
     ports:
       - "3002:3002"
+    volumes:
+      - .:/app
+      - /app/node_modules
 
   minio:
     image: minio/minio

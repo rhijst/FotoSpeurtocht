@@ -6,7 +6,7 @@ async function connectRabbit() {
   let retries = 10;
   while (retries) {
     try {
-      const connection = await amqp.connect("amqp://rabbitmq");
+      const connection = await amqp.connect("amqp://rabbitmq-target");
       channel = await connection.createChannel();
       console.log("RabbitMQ connected");
       return;
