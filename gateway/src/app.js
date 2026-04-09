@@ -101,6 +101,20 @@ app.use(
 );
 
 /*
+Score Service
+*/
+app.use(
+  '/score',
+  createProxyMiddleware({
+    target: process.env.SCORE_SERVICE_URL,
+    changeOrigin: true,
+    onProxyReq: (proxyReq) => {
+      proxyReq.setHeader('x-internal-secret', process.env.INTERNAL_SECRET);
+    },
+  })
+);
+
+/*
 Health check
 */
 app.get('/status', (req, res) => {

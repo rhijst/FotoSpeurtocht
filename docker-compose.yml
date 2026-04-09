@@ -13,6 +13,7 @@ services:
     depends_on:
       - register-service
       - target-service
+      - score-service
 
   register-service:
     build: ./register-service
@@ -37,6 +38,16 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+
+  score-service:
+    build: ./score-service
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./score-service:/app
+      - /app/node_modules
+    env_file:
+      - ./score-service/.env
 
   rabbitmq:
     image: rabbitmq:3-management

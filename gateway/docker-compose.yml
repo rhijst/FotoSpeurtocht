@@ -8,3 +8,4 @@ services:
     environment:
       REGISTER_SERVICE_URL: http://host.docker.internal:3001
       TARGET_SERVICE_URL: http://host.docker.internal:3002
+      SCORE_SERVICE_URL: http://host.docker.internal:3003
