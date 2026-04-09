@@ -3,6 +3,7 @@ const Target = require("../models/Target");
 const s3 = require("../config/minio");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { v4: uuidv4 } = require("uuid");
+const { publishEvent } = require("../services/rabbitService");
 
 
 const bucketName = process.env.MINIO_BUCKET || "targets";
