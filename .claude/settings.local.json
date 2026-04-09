@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(env|config|json|yml|yaml\\)$\")",
+      "Bash(cat D:/HBO/CloudServices/FotoSpeurtocht/gateway/src/*.js)",
+      "Bash(cat D:/HBO/CloudServices/FotoSpeurtocht/score-service/src/models/*.js)"
+    ]
+  }
+}
