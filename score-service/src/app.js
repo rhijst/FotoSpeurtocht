@@ -1,6 +1,6 @@
 const express = require('express');
 require('dotenv').config();
-
+const connectDB = require('./config/db');
 const scoreRoutes = require('./routes/scoreRoutes');
 
 const app = express();
@@ -11,6 +11,9 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Connect to MongoDB
+connectDB();
 
 app.use('/score', scoreRoutes);
 
