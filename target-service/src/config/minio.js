@@ -7,7 +7,7 @@ const s3 = new S3Client({
     accessKeyId: process.env.MINIO_ROOT_USER || "minioadmin",
     secretAccessKey: process.env.MINIO_ROOT_PASSWORD || "minioadmin"
   },
-  forcePathStyle: true // belangrijk voor MinIO
+  forcePathStyle: true
 });
 
 module.exports = s3;
