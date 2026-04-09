@@ -1,16 +1,16 @@
-const amqp = require("amqplib");
+// const amqp = require("amqplib");
 
-let channel;
+// let channel;
 
-async function connectRabbit() {
-  const connection = await amqp.connect("amqp://rabbitmq");
-  channel = await connection.createChannel();
+// async function connectRabbit() {
+//   const connection = await amqp.connect("amqp://rabbitmq");
+//   channel = await connection.createChannel();
 
-  console.log("RabbitMQ connected");
-}
+//   console.log("RabbitMQ connected");
+// }
 
-function getChannel() {
-  return channel;
-}
+// function getChannel() {
+//   return channel;
+// }
 
-module.exports = { connectRabbit, getChannel };
+// module.exports = { connectRabbit, getChannel };

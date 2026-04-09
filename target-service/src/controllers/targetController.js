@@ -3,6 +3,8 @@ const Target = require("../models/Target");
 const s3 = require("../config/minio");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { v4: uuidv4 } = require("uuid");
+const { getChannel } = require('../config/rabbit');
+
 
 const bucketName = process.env.MINIO_BUCKET || "targets";
 
@@ -51,6 +53,20 @@ exports.createTarget = async (req, res) => {
     });
 
     await target.save();
+
+    const channel = getChannel();
+
+    channel.publish(
+      'events',
+      'target.created',
+      Buffer.from(JSON.stringify({
+        targetId: target._id,
+        ownerId: req.user.userId,
+        deadline: target.deadline,
+        imageURL: "url"
+      }))
+    );
+
     res.status(201).json(target);
 
   } catch (err) {

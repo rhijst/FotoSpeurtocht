@@ -8,24 +8,11 @@ services:
       - "27018:27017"
     volumes:
       - mongodata:/data/db
-
-  rabbitmq-target:
-    image: rabbitmq:3-management
-    container_name: rabbitmq-target
-    ports:
-      - "5673:5672"
-      - "15673:15672"
-    healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
-      interval: 5s
-      retries: 5
-
+      
   target-service:
     build: .
     container_name: target-service
     depends_on:
-      rabbitmq-target:
-        condition: service_healthy
       mongo-target:
         condition: service_started
       minio:
