@@ -1,12 +1,8 @@
-const {
-  S3Client,
-  CreateBucketCommand,
-  HeadBucketCommand,
-  PutBucketPolicyCommand,
-} = require("@aws-sdk/client-s3");
+import { S3Client, CreateBucketCommand, PutBucketPolicyCommand } from "@aws-sdk/client-s3";
+import 'dotenv/config';
 
 const s3 = new S3Client({
-  endpoint: process.env.MINIO_ENDPOINT || "http://minio:9000",
+  endpoint: process.env.MINIO_ENDPOINT || "http://minio-service:9000",
   region: "us-east-1",
   credentials: {
     accessKeyId: process.env.MINIO_ROOT_USER || "minioadmin",
@@ -19,25 +15,9 @@ const bucketName = process.env.MINIO_BUCKET || "targets";
 
 async function initMinio() {
   try {
+    await s3.send(new CreateBucketCommand({ Bucket: bucketName }));
+    console.log("Bucket created or already exists");
 
-    // 1. Check if bucket exists
-    try {
-      await s3.send(new CreateBucketCommand({ Bucket: bucketName }));
-      console.log("Bucket created");
-    } 
-    catch (err) {
-      // Race condition, of 2 containers launched the same time and checked when no bucket existed
-      if (
-        err.name === "BucketAlreadyOwnedByYou" ||
-        err.name === "BucketAlreadyExists"
-      ) {
-        console.log("Bucket already exists (race condition safe)");
-      } else {
-        throw err;
-      }
-    }
-
-    // 2. Set public policy
     const policy = {
       Version: "2012-10-17",
       Statement: [
@@ -63,4 +43,4 @@ async function initMinio() {
   }
 }
 
-module.exports = initMinio;
+initMinio();

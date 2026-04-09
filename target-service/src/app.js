@@ -5,7 +5,6 @@ const path = require("path");
 const connectDB = require("./config/db");
 const targetRoutes = require("./routes/targetRoutes");
 const { connectRabbit } = require("./config/rabbit");
-const initMinio = require("./utils/initMinio");
 
 const app = express();
 
@@ -23,9 +22,6 @@ connectDB();
 
 // connect rabbitMQ
 connectRabbit();
-
-// Set up bucket in minio
-initMinio();
 
 // Web browser GUI
 app.use(express.static(path.join(__dirname, "public")));

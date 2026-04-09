@@ -1,1 +1,0 @@
-Execute the scripts `node <script_name>` 

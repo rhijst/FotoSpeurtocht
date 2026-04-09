@@ -54,18 +54,18 @@ exports.createTarget = async (req, res) => {
 
     await target.save();
 
-    const channel = getChannel();
+    // const channel = getChannel();
 
-    channel.publish(
-      'events',
-      'target.created',
-      Buffer.from(JSON.stringify({
-        targetId: target._id,
-        ownerId: req.user.userId,
-        deadline: target.deadline,
-        imageURL: "url"
-      }))
-    );
+    // channel.publish(
+    //   'events',
+    //   'target.created',
+    //   Buffer.from(JSON.stringify({
+    //     targetId: target._id,
+    //     ownerId: req.user.userId,
+    //     deadline: target.deadline,
+    //     imageURL: "url"
+    //   }))
+    // );
 
     res.status(201).json(target);
 

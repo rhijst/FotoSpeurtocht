@@ -4,7 +4,7 @@ services:
     image: mongo:8
     container_name: target-mongo
     ports:
-      # External - External
+      # External - Internal
       - "27018:27017"
     volumes:
       - mongodata:/data/db
@@ -15,8 +15,6 @@ services:
     depends_on:
       mongo-target:
         condition: service_started
-      minio:
-        condition: service_started
     env_file:
       - .env
     ports:
@@ -25,19 +23,5 @@ services:
       - .:/app
       - /app/node_modules
 
-  minio:
-    image: minio/minio
-    container_name: minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    command: server /data --console-address ":9001"
-    volumes:
-      - minio_data:/data
-
 volumes:
   mongodata:
-  minio_data:
