@@ -49,6 +49,12 @@ services:
     env_file:
       - ./score-service/.env
 
+  gui:
+    build: ./gui
+    container_name: gui
+    ports:
+      - "8080:80"
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FotoSpeurtocht — Test GUI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      color: #fff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #a5b4fc;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    label {
+      display: block;
+      font-size: .8rem;
+      color: #94a3b8;
+      margin-bottom: .3rem;
+    }
+
+    input[type=text], input[type=email], input[type=password], input[type=number], input[type=file], select, textarea {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 7px;
+      color: #e2e8f0;
+      padding: .55rem .75rem;
+      font-size: .875rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #6366f1; }
+
+    button {
+      cursor: pointer;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: .6rem 1.2rem;
+      font-size: .875rem;
+      font-weight: 600;
+      transition: background .2s;
+    }
+    button:hover { background: #4f46e5; }
+    button.secondary { background: #334155; }
+    button.secondary:hover { background: #475569; }
+    button.danger { background: #dc2626; }
+    button.danger:hover { background: #b91c1c; }
+
+    .token-bar {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 7px;
+      padding: .5rem .75rem;
+      font-size: .75rem;
+      color: #64748b;
+      word-break: break-all;
+      max-height: 3.5rem;
+      overflow: hidden;
+    }
+    .token-bar.active { color: #4ade80; border-color: #166534; }
+
+    .response {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 7px;
+      padding: .75rem;
+      font-size: .78rem;
+      font-family: monospace;
+      color: #94a3b8;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .response.ok  { border-color: #166534; color: #4ade80; }
+    .response.err { border-color: #7f1d1d; color: #f87171; }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+    }
+    .tag {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 999px;
+      padding: .2rem .65rem;
+      font-size: .75rem;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+    .tag .score {
+      background: #6366f1;
+      border-radius: 999px;
+      padding: .1rem .4rem;
+      font-size: .7rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .target-item {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: .75rem;
+      display: flex;
+      gap: .75rem;
+      align-items: flex-start;
+    }
+    .target-item img {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .target-item .info { flex: 1; }
+    .target-item .info strong { font-size: .875rem; }
+    .target-item .info p { font-size: .75rem; color: #64748b; margin-top: .2rem; }
+
+    .row { display: flex; gap: .5rem; }
+    .row > * { flex: 1; }
+
+    #tokenDisplay { grid-column: 1 / -1; }
+  </style>
+</head>
+<body>
+  <h1>🗺️ FotoSpeurtocht — Test GUI</h1>
+
+  <div class="grid">
+
+    <!-- TOKEN STATUS -->
+    <div class="card" id="tokenDisplay">
+      <h2>Auth Token</h2>
+      <div class="token-bar" id="tokenBar">No token — log in first</div>
+      <button class="secondary" onclick="clearToken()">Clear token</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="card">
+      <h2>Register</h2>
+      <div>
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="user@example.com"/>
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="••••••••"/>
+      </div>
+      <div>
+        <label>Role</label>
+        <select id="reg-role">
+          <option value="participant">participant</option>
+          <option value="owner">owner</option>
+        </select>
+      </div>
+      <button onclick="register()">Register</button>
+      <div class="response" id="reg-response"></div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="card">
+      <h2>Login</h2>
+      <div>
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="user@example.com"/>
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••"/>
+      </div>
+      <button onclick="login()">Login &amp; save token</button>
+      <div class="response" id="login-response"></div>
+    </div>
+
+    <!-- SCORE BY URL -->
+    <div class="card">
+      <h2>Score — Image URL</h2>
+      <div>
+        <label>Image URL</label>
+        <input type="text" id="score-url" placeholder="https://example.com/photo.jpg"/>
+      </div>
+      <div class="row">
+        <div>
+          <label>Language</label>
+          <input type="text" id="score-url-lang" value="en"/>
+        </div>
+        <div>
+          <label>Limit</label>
+          <input type="number" id="score-url-limit" value="20"/>
+        </div>
+        <div>
+          <label>Threshold</label>
+          <input type="number" id="score-url-threshold" value="0"/>
+        </div>
+      </div>
+      <button onclick="scoreByUrl()">Get Tags</button>
+      <div class="tag-list" id="score-url-tags"></div>
+      <div class="response" id="score-url-response"></div>
+    </div>
+
+    <!-- SCORE BY UPLOAD -->
+    <div class="card">
+      <h2>Score — Upload Image</h2>
+      <div>
+        <label>Image file</label>
+        <input type="file" id="score-file" accept="image/*"/>
+      </div>
+      <div class="row">
+        <div>
+          <label>Language</label>
+          <input type="text" id="score-upload-lang" value="en"/>
+        </div>
+        <div>
+          <label>Limit</label>
+          <input type="number" id="score-upload-limit" value="20"/>
+        </div>
+        <div>
+          <label>Threshold</label>
+          <input type="number" id="score-upload-threshold" value="0"/>
+        </div>
+      </div>
+      <button onclick="scoreByUpload()">Upload &amp; Get Tags</button>
+      <div class="tag-list" id="score-upload-tags"></div>
+      <div class="response" id="score-upload-response"></div>
+    </div>
+
+    <!-- TARGETS LIST -->
+    <div class="card">
+      <h2>Targets</h2>
+      <button onclick="loadTargets()">Refresh targets</button>
+      <div id="targets-list" style="display:flex;flex-direction:column;gap:.5rem;"></div>
+      <div class="response" id="targets-response"></div>
+    </div>
+
+    <!-- CREATE TARGET -->
+    <div class="card">
+      <h2>Create Target</h2>
+      <div>
+        <label>Title</label>
+        <input type="text" id="t-title" placeholder="My target"/>
+      </div>
+      <div>
+        <label>Description</label>
+        <input type="text" id="t-description" placeholder="Optional description"/>
+      </div>
+      <div>
+        <label>Location name</label>
+        <input type="text" id="t-location" placeholder="Amsterdam"/>
+      </div>
+      <div class="row">
+        <div>
+          <label>Latitude</label>
+          <input type="number" id="t-lat" placeholder="52.37" step="any"/>
+        </div>
+        <div>
+          <label>Longitude</label>
+          <input type="number" id="t-lng" placeholder="4.89" step="any"/>
+        </div>
+        <div>
+          <label>Radius (m)</label>
+          <input type="number" id="t-radius" value="100"/>
+        </div>
+      </div>
+      <div>
+        <label>Deadline</label>
+        <input type="text" id="t-deadline" placeholder="2025-12-31"/>
+      </div>
+      <div>
+        <label>Image</label>
+        <input type="file" id="t-image" accept="image/*"/>
+      </div>
+      <button onclick="createTarget()">Create Target</button>
+      <div class="response" id="create-target-response"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    // ─── Token helpers ───────────────────────────────────────────────
+    function getToken() { return localStorage.getItem('token'); }
+    function saveToken(t) { localStorage.setItem('token', t); refreshTokenBar(); }
+    function clearToken() { localStorage.removeItem('token'); refreshTokenBar(); }
+    function refreshTokenBar() {
+      const bar = document.getElementById('tokenBar');
+      const t = getToken();
+      bar.textContent = t ? t : 'No token — log in first';
+      bar.className = 'token-bar' + (t ? ' active' : '');
+    }
+    function authHeader() {
+      const t = getToken();
+      return t ? { Authorization: `Bearer ${t}` } : {};
+    }
+
+    // ─── Response helpers ────────────────────────────────────────────
+    function showResponse(elId, data, ok) {
+      const el = document.getElementById(elId);
+      el.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+      el.className = 'response ' + (ok ? 'ok' : 'err');
+    }
+    function renderTags(containerId, tags) {
+      const el = document.getElementById(containerId);
+      el.innerHTML = '';
+      (tags || []).forEach(({ tag, confidence }) => {
+        const div = document.createElement('div');
+        div.className = 'tag';
+        div.innerHTML = `${tag.en ?? Object.values(tag)[0]} <span class="score">${confidence.toFixed(1)}</span>`;
+        el.appendChild(div);
+      });
+    }
+
+    // ─── Auth ────────────────────────────────────────────────────────
+    async function register() {
+      const res = await fetch(`${API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:    document.getElementById('reg-email').value,
+          password: document.getElementById('reg-password').value,
+          role:     document.getElementById('reg-role').value,
+        }),
+      });
+      showResponse('reg-response', await res.json(), res.ok);
+    }
+
+    async function login() {
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:    document.getElementById('login-email').value,
+          password: document.getElementById('login-password').value,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.token) {
+        saveToken(data.token);
+        showResponse('login-response', { message: 'Logged in!', token: data.token }, true);
+      } else {
+        showResponse('login-response', data, false);
+      }
+    }
+
+    // ─── Score by URL ────────────────────────────────────────────────
+    async function scoreByUrl() {
+      const res = await fetch(`${API}/score/url`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify({
+          image_url: document.getElementById('score-url').value,
+          language:  document.getElementById('score-url-lang').value,
+          limit:    +document.getElementById('score-url-limit').value,
+          threshold:+document.getElementById('score-url-threshold').value,
+        }),
+      });
+      const data = await res.json();
+      showResponse('score-url-response', data, res.ok);
+      if (res.ok) renderTags('score-url-tags', data.result?.tags);
+    }
+
+    // ─── Score by upload ─────────────────────────────────────────────
+    async function scoreByUpload() {
+      const file = document.getElementById('score-file').files[0];
+      if (!file) { alert('Please select an image file first.'); return; }
+
+      const fd = new FormData();
+      fd.append('image',     file);
+      fd.append('language',  document.getElementById('score-upload-lang').value);
+      fd.append('limit',     document.getElementById('score-upload-limit').value);
+      fd.append('threshold', document.getElementById('score-upload-threshold').value);
+
+      const res = await fetch(`${API}/score/upload`, {
+        method: 'POST',
+        headers: authHeader(),
+        body: fd,
+      });
+      const data = await res.json();
+      showResponse('score-upload-response', data, res.ok);
+      if (res.ok) renderTags('score-upload-tags', data.result?.tags);
+    }
+
+    // ─── Targets ─────────────────────────────────────────────────────
+    async function loadTargets() {
+      const res = await fetch(`${API}/targets`, { headers: authHeader() });
+      const data = await res.json();
+      showResponse('targets-response', data, res.ok);
+      const list = document.getElementById('targets-list');
+      list.innerHTML = '';
+      if (Array.isArray(data)) {
+        data.forEach(t => {
+          const div = document.createElement('div');
+          div.className = 'target-item';
+          div.innerHTML = `
+            ${t.imageUrl ? `<img src="${t.imageUrl}" alt="${t.title}" onerror="this.style.display='none'"/>` : ''}
+            <div class="info">
+              <strong>${t.title}</strong>
+              <p>${t.description || ''}</p>
+              <p style="color:#6366f1;font-size:.7rem">${t.locationName || ''}</p>
+            </div>
+            <button class="danger" style="flex-shrink:0" onclick="deleteTarget('${t._id || t.id}')">✕</button>
+          `;
+          list.appendChild(div);
+        });
+      }
+    }
+
+    async function createTarget() {
+      const fd = new FormData();
+      fd.append('title',        document.getElementById('t-title').value);
+      fd.append('description',  document.getElementById('t-description').value);
+      fd.append('locationName', document.getElementById('t-location').value);
+      fd.append('lat',          document.getElementById('t-lat').value);
+      fd.append('lng',          document.getElementById('t-lng').value);
+      fd.append('radius',       document.getElementById('t-radius').value);
+      fd.append('deadline',     document.getElementById('t-deadline').value);
+      const img = document.getElementById('t-image').files[0];
+      if (img) fd.append('image', img);
+
+      const res = await fetch(`${API}/targets`, {
+        method: 'POST',
+        headers: authHeader(),
+        body: fd,
+      });
+      const data = await res.json();
+      showResponse('create-target-response', data, res.ok);
+      if (res.ok) loadTargets();
+    }
+
+    async function deleteTarget(id) {
+      const res = await fetch(`${API}/targets/${id}`, {
+        method: 'DELETE',
+        headers: authHeader(),
+      });
+      showResponse('targets-response', await res.json(), res.ok);
+      if (res.ok) loadTargets();
+    }
+
+    // ─── Init ─────────────────────────────────────────────────────────
+    refreshTokenBar();
+    if (getToken()) loadTargets();
+  </script>
+</body>
+</html>

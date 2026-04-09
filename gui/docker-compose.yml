@@ -1,0 +1,7 @@
+services:
+
+  gui:
+    build: .
+    container_name: gui
+    ports:
+      - "8080:80"
