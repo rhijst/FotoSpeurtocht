@@ -19,13 +19,22 @@ const bucketName = process.env.MINIO_BUCKET || "targets";
 
 async function initMinio() {
   try {
+
     // 1. Check if bucket exists
     try {
-      await s3.send(new HeadBucketCommand({ Bucket: bucketName }));
-      console.log(`Bucket "${bucketName}" already exists`);
-    } catch (err) {
-      console.log(`Creating bucket "${bucketName}"...`);
       await s3.send(new CreateBucketCommand({ Bucket: bucketName }));
+      console.log("Bucket created");
+    } 
+    catch (err) {
+      // Race condition, of 2 containers launched the same time and checked when no bucket existed
+      if (
+        err.name === "BucketAlreadyOwnedByYou" ||
+        err.name === "BucketAlreadyExists"
+      ) {
+        console.log("Bucket already exists (race condition safe)");
+      } else {
+        throw err;
+      }
     }
 
     // 2. Set public policy
