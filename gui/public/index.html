@@ -55,56 +55,22 @@
       <div class="response" id="login-response"></div>
     </div>
 
-    <!-- SCORE BY URL -->
+    <!-- REGISTER FOR TARGET -->
     <div class="card">
-      <h2>Score — Image URL</h2>
+      <h2>Register for Target</h2>
       <div>
-        <label>Image URL</label>
-        <input type="text" id="score-url" placeholder="https://example.com/photo.jpg"/>
+        <label>Select Target</label>
+        <select id="join-target-id">
+          <option value="">— select a target —</option>
+        </select>
+        <button class="secondary" onclick="refreshJoinTargets()" style="margin-top:.5rem">Refresh list</button>
       </div>
-      <div class="row">
-        <div>
-          <label>Language</label>
-          <input type="text" id="score-url-lang" value="en"/>
-        </div>
-        <div>
-          <label>Limit</label>
-          <input type="number" id="score-url-limit" value="20"/>
-        </div>
-        <div>
-          <label>Threshold</label>
-          <input type="number" id="score-url-threshold" value="0"/>
-        </div>
-      </div>
-      <button onclick="scoreByUrl()">Get Tags</button>
-      <div class="tag-list" id="score-url-tags"></div>
-      <div class="response" id="score-url-response"></div>
-    </div>
-
-    <!-- SCORE BY UPLOAD -->
-    <div class="card">
-      <h2>Score — Upload Image</h2>
       <div>
-        <label>Image file</label>
-        <input type="file" id="score-file" accept="image/*"/>
+        <label>Your Photo</label>
+        <input type="file" id="join-photo" accept="image/*"/>
       </div>
-      <div class="row">
-        <div>
-          <label>Language</label>
-          <input type="text" id="score-upload-lang" value="en"/>
-        </div>
-        <div>
-          <label>Limit</label>
-          <input type="number" id="score-upload-limit" value="20"/>
-        </div>
-        <div>
-          <label>Threshold</label>
-          <input type="number" id="score-upload-threshold" value="0"/>
-        </div>
-      </div>
-      <button onclick="scoreByUpload()">Upload &amp; Get Tags</button>
-      <div class="tag-list" id="score-upload-tags"></div>
-      <div class="response" id="score-upload-response"></div>
+      <button onclick="joinTarget()">Register &amp; Submit Photo</button>
+      <div class="response" id="join-response"></div>
     </div>
 
     <!-- TARGETS LIST -->
@@ -182,16 +148,6 @@
       el.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
       el.className = 'response ' + (ok ? 'ok' : 'err');
     }
-    function renderTags(containerId, tags) {
-      const el = document.getElementById(containerId);
-      el.innerHTML = '';
-      (tags || []).forEach(({ tag, confidence }) => {
-        const div = document.createElement('div');
-        div.className = 'tag';
-        div.innerHTML = `${tag.en ?? Object.values(tag)[0]} <span class="score">${confidence.toFixed(1)}</span>`;
-        el.appendChild(div);
-      });
-    }
 
     // ─── Auth ────────────────────────────────────────────────────────
     async function register() {
@@ -225,42 +181,47 @@
       }
     }
 
-    // ─── Score by URL ────────────────────────────────────────────────
-    async function scoreByUrl() {
-      const res = await fetch(`${API}/score/url`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeader() },
-        body: JSON.stringify({
-          image_url: document.getElementById('score-url').value,
-          language:  document.getElementById('score-url-lang').value,
-          limit:    +document.getElementById('score-url-limit').value,
-          threshold:+document.getElementById('score-url-threshold').value,
-        }),
+    // ─── Register for Target ─────────────────────────────────────────
+    async function refreshJoinTargets() {
+      const res = await fetch(`${API}/targets`, { headers: authHeader() });
+      if (!res.ok) return;
+      const targets = await res.json();
+      const sel = document.getElementById('join-target-id');
+      sel.innerHTML = '<option value="">— select a target —</option>';
+      (Array.isArray(targets) ? targets : []).forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t._id || t.id;
+        opt.textContent = t.title;
+        sel.appendChild(opt);
       });
-      const data = await res.json();
-      showResponse('score-url-response', data, res.ok);
-      if (res.ok) renderTags('score-url-tags', data.result?.tags);
     }
 
-    // ─── Score by upload ─────────────────────────────────────────────
-    async function scoreByUpload() {
-      const file = document.getElementById('score-file').files[0];
-      if (!file) { alert('Please select an image file first.'); return; }
+    async function joinTarget() {
+      const targetId = document.getElementById('join-target-id').value;
+      if (!targetId) { alert('Please select a target first.'); return; }
+      const file = document.getElementById('join-photo').files[0];
+      if (!file) { alert('Please select a photo to upload.'); return; }
 
+      // Step 1: register as participant
+      const joinRes = await fetch(`${API}/participants`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify({ targetId }),
+      });
+      const joinData = await joinRes.json();
+      if (!joinRes.ok) { showResponse('join-response', joinData, false); return; }
+
+      // Step 2: upload photo
       const fd = new FormData();
-      fd.append('image',     file);
-      fd.append('language',  document.getElementById('score-upload-lang').value);
-      fd.append('limit',     document.getElementById('score-upload-limit').value);
-      fd.append('threshold', document.getElementById('score-upload-threshold').value);
-
-      const res = await fetch(`${API}/score/upload`, {
+      fd.append('image', file);
+      fd.append('targetId', targetId);
+      const scoreRes = await fetch(`${API}/score/upload`, {
         method: 'POST',
         headers: authHeader(),
         body: fd,
       });
-      const data = await res.json();
-      showResponse('score-upload-response', data, res.ok);
-      if (res.ok) renderTags('score-upload-tags', data.result?.tags);
+      const scoreData = await scoreRes.json();
+      showResponse('join-response', { join: joinData, score: scoreData }, scoreRes.ok);
     }
 
     // ─── Targets ─────────────────────────────────────────────────────
@@ -321,7 +282,7 @@
 
     // ─── Init ─────────────────────────────────────────────────────────
     refreshTokenBar();
-    if (getToken()) loadTargets();
+    if (getToken()) { loadTargets(); refreshJoinTargets(); }
   </script>
 </body>
 </html>
