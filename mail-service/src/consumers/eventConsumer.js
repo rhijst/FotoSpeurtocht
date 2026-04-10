@@ -31,7 +31,7 @@ async function startConsumer() {
           await sendMail(
             payload.email,
             'Welcome!',
-            `Hi ${payload.name}, your account has been created.`
+            `Hi! Your account has been created.`
           );
           break;
 

@@ -1,8 +1,10 @@
 const express = require('express');
 const connectDB = require('./config/db');
+const { connectRabbit } = require('./config/rabbit');
 require('dotenv').config();
 
 connectDB();
+connectRabbit();
 
 const authRoutes = require('./routes/authRoutes');
 
