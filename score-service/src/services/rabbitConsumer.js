@@ -89,6 +89,17 @@ async function startConsumer() {
       console.log(`  finalScore:  ${finalScore.toFixed(2)}`);
       console.log(`  top tags:    ${tags.slice(0, 5).map(t => t.tag.en).join(', ')}`);
 
+
+      channel.publish(
+        'events',
+        'score.calculated',
+        Buffer.from(JSON.stringify({
+          email: 'user@example.com', // later ophalen uit user service
+          score: finalScore,
+          targetId: payload.targetId
+        }))
+      );
+
       channel.ack(msg);
     } catch (err) {
       console.error('[target.created] Failed to process event:', err.message);

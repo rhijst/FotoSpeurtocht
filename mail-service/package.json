@@ -1,0 +1,23 @@
+{
+    "name": "mail-service",
+    "version": "1.0.0",
+    "description": "Mail service for FotoSpeurtocht",
+    "main": "src/app.js",
+    "scripts": {
+        "start": "node src/app.js",
+        "dev": "nodemon -L src/app.js",
+        "test": "jest"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "amqplib": "^0.10.9",
+        "dotenv": "^16.6.1",
+        "mongoose": "^9.2.3",
+        "nodemailer": "^8.0.5"
+    },
+    "devDependencies": {
+        "jest": "^29.5.0",
+        "nodemon": "^2.0.20"
+    }
+}

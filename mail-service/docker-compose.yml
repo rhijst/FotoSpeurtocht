@@ -1,0 +1,7 @@
+mail-service:
+  build: ./mail-service
+  container_name: mail-service
+  env_file:
+    - ./mail-service/.env
+  depends_on:
+    - rabbitmq
