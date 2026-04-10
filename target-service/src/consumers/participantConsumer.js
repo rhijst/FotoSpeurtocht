@@ -20,6 +20,12 @@ function startParticipantConsumer() {
 
     console.log("[TARGET] join request:", event);
 
+    if (!mongoose.Types.ObjectId.isValid(event.targetId)) {
+      console.warn("[TARGET] invalid targetId received:", event.targetId);
+      channel.ack(msg);
+      return;
+    }
+
     const target = await Target.findById(event.targetId);
 
     let result;

@@ -40,7 +40,6 @@ Example:
 PORT=3002
 MONGO_URI=mongodb://mongo:27017/targetdb
 JWT_SECRET=supersecret
-APP_URL=http://localhost:3002
 
 
 # Running the Service

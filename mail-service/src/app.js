@@ -9,3 +9,7 @@ async function start() {
 }
 
 start();
+
+app.listen(process.env.PORT, () => {
+  console.log(`Join service running on port ${process.env.PORT}`);
+});
