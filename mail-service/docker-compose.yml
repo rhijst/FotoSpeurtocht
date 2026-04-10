@@ -6,10 +6,6 @@ services:
       - .env
     environment:
       - REGISTER_SERVICE_URL=http://host.docker.internal:3001
-      - SMTP_HOST=smtp.mailgun.org
-      - SMTP_PORT=587
-      - SMTP_USER=foto_speurtocht@sandboxa784eae0d86b40d6914c68b17eaeba82.mailgun.org
-      - SMTP_PASS=e70b9adef594c92583ed9e151399f1f5-415ae7fb-3626466c
     ports:
       - "3004:3004"
     volumes:
