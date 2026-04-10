@@ -5,6 +5,7 @@ const path = require("path");
 const connectDB = require("./config/db");
 const targetRoutes = require("./routes/targetRoutes");
 const { connectRabbit } = require("./config/rabbit");
+const { startParticipantConsumer } = require("./consumers/participantConsumer");
 
 const app = express();
 
@@ -21,7 +22,9 @@ app.use((req, res, next) => {
 connectDB();
 
 // connect rabbitMQ
-connectRabbit();
+connectRabbit().then(() => {
+  startParticipantConsumer();
+});
 
 // routes
 app.use("/targets", targetRoutes);
