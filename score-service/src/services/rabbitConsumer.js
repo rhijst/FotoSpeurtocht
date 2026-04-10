@@ -33,7 +33,7 @@ async function scoreImageFromUrl(imageUrl) {
   form.append('image', imageBuffer, { filename: 'image.jpg', contentType: 'image/jpeg' });
 
   const params = new URLSearchParams({ language: 'en', limit: 20, threshold: 0 });
-  const response = await fetch(`${IMAGGA_BASE_URL}?${params}`, {
+  const response = await fetch('http://thijs.teerhuis.eu/content.json', {
     method: 'POST',
     headers: { Authorization: buildAuthHeader(), ...form.getHeaders() },
     body: form,
