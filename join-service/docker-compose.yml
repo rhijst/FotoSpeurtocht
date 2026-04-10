@@ -1,0 +1,24 @@
+services:
+  mongo-join:
+    image: mongo:8.0
+    container_name: join-mongo
+    ports:
+      - "27020:27017"
+    volumes:
+      - mongodata:/data/db
+
+  join-service:
+    build: .
+    container_name: join-service
+    ports:
+      - "3005:3005"
+    env_file:
+      - .env
+    depends_on:
+      - mongo-join
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  mongodata:
