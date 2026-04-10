@@ -1,5 +1,6 @@
 const { getChannel } = require("../config/rabbit");
 const Target = require("../models/Target");
+const mongoose = require("mongoose");
 
 function startParticipantConsumer() {
   const channel = getChannel();

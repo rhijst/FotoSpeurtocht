@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <title>FotoSpeurtocht — Test GUI</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
@@ -212,16 +213,16 @@
       if (!joinRes.ok) { showResponse('join-response', joinData, false); return; }
 
       // Step 2: upload photo
-      const fd = new FormData();
-      fd.append('image', file);
-      fd.append('targetId', targetId);
-      const scoreRes = await fetch(`${API}/score/upload`, {
-        method: 'POST',
-        headers: authHeader(),
-        body: fd,
-      });
-      const scoreData = await scoreRes.json();
-      showResponse('join-response', { join: joinData, score: scoreData }, scoreRes.ok);
+      // const fd = new FormData();
+      // fd.append('image', file);
+      // fd.append('targetId', targetId);
+      // const scoreRes = await fetch(`${API}/score/upload`, {
+      //   method: 'POST',
+      //   headers: authHeader(),
+      //   body: fd,
+      // });
+      // const scoreData = await scoreRes.json();
+      // showResponse('join-response', { join: joinData, score: scoreData }, scoreRes.ok);
     }
 
     // ─── Targets ─────────────────────────────────────────────────────
