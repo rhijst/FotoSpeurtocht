@@ -13,8 +13,8 @@
     "dependencies": {
         "amqplib": "^0.10.9",
         "dotenv": "^16.6.1",
-        "mongoose": "^9.2.3",
-        "nodemailer": "^8.0.5"
+        "resend": "^4.0.0",
+        "mongoose": "^9.2.3"
     },
     "devDependencies": {
         "jest": "^29.5.0",

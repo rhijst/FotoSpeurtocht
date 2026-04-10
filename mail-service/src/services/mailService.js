@@ -1,17 +1,11 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT),
-  auth: process.env.SMTP_USER
-    ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-    : undefined,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function sendMail(to, subject, text) {
-  await transporter.sendMail({
-    from: '"PhotoPrestiges" <noreply@photoprestiges.com>',
-    to,
+  await resend.emails.send({
+    from: 'FotoSpeurtocht <onboarding@resend.dev>',
+    to: [to],
     subject,
     text,
   });
