@@ -21,7 +21,7 @@ app.post('/auth/login', express.json(), async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Verify credentials via register-service (database-per-service)
+    // Verify credentials via join-service (database-per-service)
     const response = await fetch(`${process.env.REGISTER_SERVICE_URL}/auth/verify`, {
       method: 'POST',
       headers: {
@@ -82,7 +82,7 @@ function verifyToken(req, res, next) {
 app.use(verifyToken);
 
 /*
-Auth - Register (proxied to register-service)
+Auth - Register (proxied to join-service)
 */
 app.use(
   '/auth',

@@ -1,16 +1,16 @@
-require("dotenv").config();
-const express = require("express");
+const express = require('express');
+const connectDB = require('./config/db');
+const { connectRabbit } = require('./config/rabbit');
+require('dotenv').config();
 
-const connectDB = require("./config/db");
-const { connectRabbit } = require("./config/rabbit");
+connectDB();
+connectRabbit();
 
-const participantRoutes = require("./routes/participantRoutes");
-const { startParticipantResultConsumer } = require("./consumers/participantResultConsumer");
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 app.use(express.json());
 
-// internal security
 app.use((req, res, next) => {
   if (req.headers['x-internal-secret'] !== process.env.INTERNAL_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -18,20 +18,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// connect services
-connectDB();
+app.use('/auth', authRoutes);
 
-connectRabbit().then(() => {
-  startParticipantResultConsumer();
-});
-
-// routes
-app.use("/participants", participantRoutes);
-
-app.get("/status", (req, res) => {
-  res.json({ status: "Join service running" });
+app.get('/status', (req, res) => {
+  res.json({ status: 'Register service running ' });
 });
 
 app.listen(process.env.PORT, () => {
-  console.log(`Join service running on port ${process.env.PORT}`);
+  console.log(`Register service running on port ${process.env.PORT}`);
 });

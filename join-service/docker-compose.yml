@@ -1,21 +1,21 @@
 services:
-  mongo-join:
+  mongo-register:
     image: mongo:8.0
-    container_name: join-mongo
+    container_name: register-mongo
     ports:
-      - "27020:27017"
+      - "27017:27017"
     volumes:
       - mongodata:/data/db
 
   join-service:
     build: .
     container_name: join-service
-    ports:
-      - "3005:3005"
+    depends_on:
+      - mongo-register
     env_file:
       - .env
-    depends_on:
-      - mongo-join
+    ports:
+      - "3001:3001"
     volumes:
       - .:/app
       - /app/node_modules

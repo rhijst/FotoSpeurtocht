@@ -9,5 +9,3 @@ async function start() {
 }
 
 start();
-
-console.log(`Join service running on port ${process.env.PORT}`);

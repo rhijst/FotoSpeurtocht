@@ -5,7 +5,7 @@ function startParticipantResultConsumer() {
   const channel = getChannel();
 
   const exchange = "events";
-  const queue = "join-service.participant.result";
+  const queue = "register-service.participant.result";
 
   channel.assertExchange(exchange, "topic", { durable: true });
 
