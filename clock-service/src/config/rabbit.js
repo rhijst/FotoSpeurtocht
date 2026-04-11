@@ -3,7 +3,7 @@ const amqp = require("amqplib");
 let channel;
 
 async function connectRabbit() {
-  let retries = 10;
+  let retries = 50;
   while (retries) {
     try {
       const connection = await amqp.connect(process.env.RABBITMQ_URL);

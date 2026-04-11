@@ -22,7 +22,7 @@ app.post('/auth/login', express.json(), async (req, res) => {
     const { email, password } = req.body;
 
     // Verify credentials via join-service (database-per-service)
-    const response = await fetch(`${process.env.REGISTER_SERVICE_URL}/auth/verify`, {
+    const response = await fetch(`${process.env.JOIN_SERVICE_URL}/auth/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ Auth - Register (proxied to join-service)
 app.use(
   '/auth',
   createProxyMiddleware({
-    target: process.env.REGISTER_SERVICE_URL,
+    target: process.env.JOIN_SERVICE_URL,
     changeOrigin: true,
     onProxyReq: (proxyReq) => {
       proxyReq.setHeader('x-internal-secret', process.env.INTERNAL_SECRET);
@@ -129,7 +129,7 @@ Join Service (Participants)
 app.use(
   '/participants',
   createProxyMiddleware({
-    target: process.env.JOIN_SERVICE_URL,
+    target: process.env.REGISTER_SERVICE_URL,
     changeOrigin: true,
     onProxyReq: (proxyReq) => {
       proxyReq.setHeader('x-internal-secret', process.env.INTERNAL_SECRET);

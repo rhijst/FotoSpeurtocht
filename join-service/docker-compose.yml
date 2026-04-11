@@ -1,7 +1,7 @@
 services:
-  mongo-register:
+  mongo-join:
     image: mongo:8.0
-    container_name: register-mongo
+    container_name: join-mongo
     ports:
       - "27017:27017"
     volumes:
@@ -11,7 +11,7 @@ services:
     build: .
     container_name: join-service
     depends_on:
-      - mongo-register
+      - mongo-join
     env_file:
       - .env
     ports:
