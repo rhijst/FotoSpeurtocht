@@ -1,4 +1,5 @@
 const Participant = require("../models/participant");
+const ClosedTarget = require("../models/ClosedTarget");
 const { publishEvent } = require("../services/rabbitService");
 
 exports.joinTarget = async (req, res) => {
@@ -8,6 +9,12 @@ exports.joinTarget = async (req, res) => {
 
     if (!targetId) {
       return res.status(400).json({ error: "targetId required" });
+    }
+
+    // check if registration is closed for this target
+    const closed = await ClosedTarget.findOne({ targetId });
+    if (closed) {
+      return res.status(400).json({ error: "Registration is closed for this target" });
     }
 
     // prevent duplicates

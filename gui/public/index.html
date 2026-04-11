@@ -117,7 +117,7 @@
       </div>
       <div>
         <label>Deadline</label>
-        <input type="text" id="t-deadline" placeholder="2025-12-31"/>
+        <input type="datetime-local" id="t-deadline"/>
       </div>
       <div>
         <label>Image</label>
@@ -297,7 +297,7 @@
       fd.append('lat',          document.getElementById('t-lat').value);
       fd.append('lng',          document.getElementById('t-lng').value);
       fd.append('radius',       document.getElementById('t-radius').value);
-      fd.append('deadline',     document.getElementById('t-deadline').value);
+      fd.append('deadline',     new Date(document.getElementById('t-deadline').value).toISOString());
       const img = document.getElementById('t-image').files[0];
       if (img) fd.append('image', img);
 

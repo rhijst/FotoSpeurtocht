@@ -1,0 +1,24 @@
+services:
+  mongo-clock:
+    image: mongo:8
+    container_name: clock-mongo
+    ports:
+      - "27021:27017"
+    volumes:
+      - mongodata:/data/db
+
+  clock-service:
+    build: .
+    container_name: clock-service
+    depends_on:
+      - mongo-clock
+    env_file:
+      - .env
+    ports:
+      - "3006:3006"
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  mongodata:
