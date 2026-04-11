@@ -33,8 +33,9 @@ function startParticipantConsumer() {
 
     if (!target) {
       result = "REJECTED";
-    }
-     else {
+    } else if (target.deadlineReached) {
+      result = "REJECTED - DEADLINE REACHED";
+    } else {
       result = "CONFIRMED";
     }
 
