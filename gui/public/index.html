@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <title>FotoSpeurtocht — Test GUI</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <h1>🗺️ FotoSpeurtocht — Test GUI</h1>
 
@@ -24,11 +26,11 @@
       <h2>Register</h2>
       <div>
         <label>Email</label>
-        <input type="email" id="reg-email" placeholder="user@example.com"/>
+        <input type="email" id="reg-email" placeholder="user@example.com" />
       </div>
       <div>
         <label>Password</label>
-        <input type="password" id="reg-password" placeholder="••••••••"/>
+        <input type="password" id="reg-password" placeholder="••••••••" />
       </div>
       <button onclick="register()">Register</button>
       <div class="response" id="reg-response"></div>
@@ -39,11 +41,11 @@
       <h2>Login</h2>
       <div>
         <label>Email</label>
-        <input type="email" id="login-email" placeholder="user@example.com"/>
+        <input type="email" id="login-email" placeholder="user@example.com" />
       </div>
       <div>
         <label>Password</label>
-        <input type="password" id="login-password" placeholder="••••••••"/>
+        <input type="password" id="login-password" placeholder="••••••••" />
       </div>
       <button onclick="login()">Login &amp; save token</button>
       <div class="response" id="login-response"></div>
@@ -71,6 +73,27 @@
       <div class="response" id="participations-response"></div>
     </div>
 
+    <!-- SUBMIT PHOTO -->
+    <div class="card">
+      <h2>Submit Photo</h2>
+
+      <div>
+        <label>Select Participation</label>
+        <select id="submit-participation-id">
+          <option value="">— select participation —</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Image</label>
+        <input type="file" id="submit-image" accept="image/*" />
+      </div>
+
+      <button onclick="submitPhoto()">Submit Photo</button>
+
+      <div class="response" id="submit-response"></div>
+    </div>
+
     <!-- TARGETS LIST -->
     <div class="card">
       <h2>Targets</h2>
@@ -84,37 +107,37 @@
       <h2>Create Target</h2>
       <div>
         <label>Title</label>
-        <input type="text" id="t-title" placeholder="My target"/>
+        <input type="text" id="t-title" placeholder="My target" />
       </div>
       <div>
         <label>Description</label>
-        <input type="text" id="t-description" placeholder="Optional description"/>
+        <input type="text" id="t-description" placeholder="Optional description" />
       </div>
       <div>
         <label>Location name</label>
-        <input type="text" id="t-location" placeholder="Amsterdam"/>
+        <input type="text" id="t-location" placeholder="Amsterdam" />
       </div>
       <div class="row">
         <div>
           <label>Latitude</label>
-          <input type="number" id="t-lat" placeholder="52.37" step="any"/>
+          <input type="number" id="t-lat" placeholder="52.37" step="any" />
         </div>
         <div>
           <label>Longitude</label>
-          <input type="number" id="t-lng" placeholder="4.89" step="any"/>
+          <input type="number" id="t-lng" placeholder="4.89" step="any" />
         </div>
         <div>
           <label>Radius (m)</label>
-          <input type="number" id="t-radius" value="100"/>
+          <input type="number" id="t-radius" value="100" />
         </div>
       </div>
       <div>
         <label>Deadline</label>
-        <input type="datetime-local" id="t-deadline"/>
+        <input type="datetime-local" id="t-deadline" />
       </div>
       <div>
         <label>Image</label>
-        <input type="file" id="t-image" accept="image/*"/>
+        <input type="file" id="t-image" accept="image/*" />
       </div>
       <button onclick="createTarget()">Create Target</button>
       <div class="response" id="create-target-response"></div>
@@ -161,7 +184,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email:    document.getElementById('reg-email').value,
+          email: document.getElementById('reg-email').value,
           password: document.getElementById('reg-password').value,
         }),
       });
@@ -173,7 +196,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email:    document.getElementById('login-email').value,
+          email: document.getElementById('login-email').value,
           password: document.getElementById('login-password').value,
         }),
       });
@@ -185,6 +208,64 @@
         showResponse('login-response', data, false);
       }
     }
+
+    // ─── Upload picture for Target ─────────────────────────────────────────
+    async function refreshParticipationSelect() {
+      const res = await fetch(`${API}/participants/me`, { headers: authHeader() });
+      if (!res.ok) return;
+
+      const data = await res.json();
+      const sel = document.getElementById('submit-participation-id');
+
+      sel.innerHTML = '<option value="">— select participation —</option>';
+
+      (Array.isArray(data) ? data : []).forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p._id;
+        opt.textContent = `${p.targetId} (${p.status})`;
+        sel.appendChild(opt);
+      });
+    }
+
+    async function submitPhoto() {
+      const participationId = document.getElementById('submit-participation-id').value;
+      const file = document.getElementById('submit-image').files[0];
+
+      if (!participationId || !file) {
+        alert("Select participation + image");
+        return;
+      }
+
+      // find targetId from participation list (quick hack)
+      const parts = await fetch(`${API}/participants/me`, { headers: authHeader() })
+        .then(r => r.json());
+
+      const participation = parts.find(p => p._id === participationId);
+      if (!participation) {
+        alert("Invalid participation");
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append("participationId", participationId);
+      fd.append("targetId", participation.targetId);
+      fd.append("image", file);
+
+      const res = await fetch(`${API}/participants/submit`, {
+        method: "POST",
+        headers: authHeader(),
+        body: fd,
+      });
+
+      const data = await res.json();
+      showResponse("submit-response", data, res.ok);
+
+      if (res.ok) {
+        refreshParticipationSelect();
+        loadMyParticipations();
+      }
+    }
+
 
     // ─── Register for Target ─────────────────────────────────────────
     async function refreshJoinTargets() {
@@ -215,17 +296,17 @@
       if (joinRes.ok) loadMyParticipations();
     }
 
-      // Step 2: upload photo
-      // const fd = new FormData();
-      // fd.append('image', file);
-      // fd.append('targetId', targetId);
-      // const scoreRes = await fetch(`${API}/score/upload`, {
-      //   method: 'POST',
-      //   headers: authHeader(),
-      //   body: fd,
-      // });
-      // const scoreData = await scoreRes.json();
-      // showResponse('join-response', { join: joinData, score: scoreData }, scoreRes.ok);
+    // Step 2: upload photo
+    // const fd = new FormData();
+    // fd.append('image', file);
+    // fd.append('targetId', targetId);
+    // const scoreRes = await fetch(`${API}/score/upload`, {
+    //   method: 'POST',
+    //   headers: authHeader(),
+    //   body: fd,
+    // });
+    // const scoreData = await scoreRes.json();
+    // showResponse('join-response', { join: joinData, score: scoreData }, scoreRes.ok);
     async function loadMyParticipations() {
       const res = await fetch(`${API}/participants/me`, { headers: authHeader() });
       if (!res.ok) { showResponse('participations-response', await res.json(), false); return; }
@@ -283,13 +364,13 @@
 
     async function createTarget() {
       const fd = new FormData();
-      fd.append('title',        document.getElementById('t-title').value);
-      fd.append('description',  document.getElementById('t-description').value);
+      fd.append('title', document.getElementById('t-title').value);
+      fd.append('description', document.getElementById('t-description').value);
       fd.append('locationName', document.getElementById('t-location').value);
-      fd.append('lat',          document.getElementById('t-lat').value);
-      fd.append('lng',          document.getElementById('t-lng').value);
-      fd.append('radius',       document.getElementById('t-radius').value);
-      fd.append('deadline',     new Date(document.getElementById('t-deadline').value).toISOString());
+      fd.append('lat', document.getElementById('t-lat').value);
+      fd.append('lng', document.getElementById('t-lng').value);
+      fd.append('radius', document.getElementById('t-radius').value);
+      fd.append('deadline', new Date(document.getElementById('t-deadline').value).toISOString());
       const img = document.getElementById('t-image').files[0];
       if (img) fd.append('image', img);
 
@@ -314,7 +395,8 @@
 
     // ─── Init ─────────────────────────────────────────────────────────
     refreshTokenBar();
-    if (getToken()) { loadTargets(); refreshJoinTargets(); loadMyParticipations(); }
+    if (getToken()) { loadTargets(); refreshJoinTargets(); loadMyParticipations(); refreshParticipationSelect(); }
   </script>
 </body>
+
 </html>
