@@ -1,60 +1,48 @@
 const { getChannel } = require('../config/rabbit');
-const { sendMail } = require('../services/mailService');
+const handlers = require('../handlers');
 
 async function startConsumer() {
   const channel = getChannel();
 
   const exchange = 'events';
-  await channel.assertExchange(exchange, 'topic', { durable: true });
-
   const queue = 'mail-service.queue';
+
+  await channel.assertExchange(exchange, 'topic', { durable: true });
   await channel.assertQueue(queue, { durable: true });
 
-  // luister naar meerdere events
-  await channel.bindQueue(queue, exchange, 'user.registered');
-  await channel.bindQueue(queue, exchange, 'score.calculated');
-  await channel.bindQueue(queue, exchange, 'deadline.reminder');
+  // bind all known events dynamically
+  for (const key of Object.keys(handlers)) {
+    await channel.bindQueue(queue, exchange, key);
+  }
 
   console.log('📧 Mail service listening for events...');
 
   channel.consume(queue, async (msg) => {
     if (!msg) return;
 
+    const routingKey = msg.fields.routingKey;
+
     try {
-      const routingKey = msg.fields.routingKey;
       const payload = JSON.parse(msg.content.toString());
 
       console.log(`📩 Event received: ${routingKey}`);
 
-      switch (routingKey) {
-        case 'user.registered':
-          await sendMail(
-            payload.email,
-            'Welcome!',
-            `Hi! Your account has been created.`
-          );
-          break;
+      const handler = handlers[routingKey];
 
-        case 'score.calculated':
-          await sendMail(
-            payload.email,
-            'Your score!',
-            `You scored ${payload.score}% on target ${payload.targetId}`
-          );
-          break;
-
-        case 'deadline.reminder':
-          await sendMail(
-            payload.email,
-            'Reminder!',
-            `You still have time to submit your photo!`
-          );
-          break;
+      if (!handler) {
+        console.warn(`⚠️ No handler for event: ${routingKey}`);
+        channel.ack(msg);
+        return;
       }
 
+      await handler(payload);
+
       channel.ack(msg);
+
     } catch (err) {
-      console.error('Mail error:', err.message);
+      console.error(`❌ Error handling ${routingKey}:`, err.message);
+
+      // Drop message
       channel.nack(msg, false, false);
     }
   });
