@@ -1,5 +1,4 @@
 const Participant = require("../models/participant");
-const ClosedTarget = require("../models/ClosedTarget");
 const Submission = require("../models/Submission");
 const { publishEvent } = require("../services/rabbitService");
 
