@@ -38,7 +38,7 @@ exports.createTarget = async (req, res) => {
 
     // Save target to MongoDB
     const target = new Target({
-      ownerId: req.user.userId,
+      ownerId: req.headers['x-user-id'],
       title: req.body.title,
       description: req.body.description,
       locationName: req.body.locationName,
@@ -57,7 +57,7 @@ exports.createTarget = async (req, res) => {
     // Publish the event
     await publishEvent('events', 'target.created', {
       targetId: target._id,
-      ownerId: req.user.userId,
+      ownerId: req.headers['x-user-id'],
       deadline: target.deadline,
       imageURL: imageUrl
     });
@@ -116,7 +116,7 @@ exports.deleteTarget = async (req, res) => {
     if (!target) return res.status(404).json({ error: "Target not found" });
 
     // Check ownership
-    if (target.ownerId.toString() !== req.user.userId) {
+    if (target.ownerId.toString() !== req.headers['x-user-id']) {
       return res.status(403).json({ error: "Not allowed" });
     }
 

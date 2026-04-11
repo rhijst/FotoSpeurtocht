@@ -1,13 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const targetController = require('../controllers/targetController');
-const authMiddleware = require('../middleware/authMiddleware');
 const upload = require("../config/multer");
 
-router.post('/', authMiddleware, upload.single('image'), targetController.createTarget);
+router.post('/', upload.single('image'), targetController.createTarget);
 
 router.get('/', targetController.getTargets);
 
-router.delete('/:id', authMiddleware, targetController.deleteTarget);
+router.delete('/:id', targetController.deleteTarget);
 
 module.exports = router;
