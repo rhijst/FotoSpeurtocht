@@ -146,6 +146,14 @@
       const t = getToken();
       return t ? { Authorization: `Bearer ${t}` } : {};
     }
+    function getCurrentUserId() {
+      const t = getToken();
+      if (!t) return null;
+      try {
+        const payload = JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+        return payload.userId || payload.sub || null;
+      } catch { return null; }
+    }
 
     // ─── Response helpers ────────────────────────────────────────────
     function showResponse(elId, data, ok) {
@@ -262,7 +270,9 @@
       const list = document.getElementById('targets-list');
       list.innerHTML = '';
       if (Array.isArray(data)) {
+        const myId = getCurrentUserId();
         data.forEach(t => {
+          const isOwner = myId && t.ownerId === myId;
           const div = document.createElement('div');
           div.className = 'target-item';
           div.innerHTML = `
@@ -272,7 +282,7 @@
               <p>${t.description || ''}</p>
               <p style="color:#6366f1;font-size:.7rem">${t.locationName || ''}</p>
             </div>
-            <button class="danger" style="flex-shrink:0" onclick="deleteTarget('${t._id || t.id}')">✕</button>
+            ${isOwner ? `<button class="danger" style="flex-shrink:0" onclick="deleteTarget('${t._id || t.id}')">✕</button>` : ''}
           `;
           list.appendChild(div);
         });
