@@ -30,13 +30,6 @@
         <label>Password</label>
         <input type="password" id="reg-password" placeholder="••••••••"/>
       </div>
-      <div>
-        <label>Role</label>
-        <select id="reg-role">
-          <option value="participant">participant</option>
-          <option value="owner">owner</option>
-        </select>
-      </div>
       <button onclick="register()">Register</button>
       <div class="response" id="reg-response"></div>
     </div>
@@ -170,7 +163,6 @@
         body: JSON.stringify({
           email:    document.getElementById('reg-email').value,
           password: document.getElementById('reg-password').value,
-          role:     document.getElementById('reg-role').value,
         }),
       });
       showResponse('reg-response', await res.json(), res.ok);

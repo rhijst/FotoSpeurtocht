@@ -35,10 +35,10 @@ app.post('/auth/login', express.json(), async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const { userId, role } = await response.json();
+    const { userId } = await response.json();
 
     const token = jwt.sign(
-      { userId, role },
+      { userId },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -72,7 +72,6 @@ function verifyToken(req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.headers['x-user-id'] = String(decoded.userId);
-    req.headers['x-user-role'] = decoded.role;
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });

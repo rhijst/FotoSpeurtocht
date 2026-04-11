@@ -16,7 +16,7 @@ exports.verify = async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        res.json({ userId: user._id, role: user.role });
+        res.json({ userId: user._id });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -24,7 +24,7 @@ exports.verify = async (req, res) => {
 
 exports.register = async (req, res) => {
     try {
-        const { email, password, role } = req.body;
+        const { email, password } = req.body;
 
         const existing = await User.findOne({ email });
         if (existing) {
@@ -36,7 +36,6 @@ exports.register = async (req, res) => {
         const user = await User.create({
             email,
             password_hash: hashedPassword,
-            role: role || 'participant',
         });
 
         const channel = getChannel();
@@ -45,7 +44,6 @@ exports.register = async (req, res) => {
         res.status(201).json({
             id: user._id,
             email: user.email,
-            role: user.role,
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
