@@ -16,6 +16,10 @@ exports.createTarget = async (req, res) => {
     const file = req.file;
     if (!file) return res.status(400).json({ error: "No file uploaded" });
 
+    if (!req.body.deadline || new Date(req.body.deadline) <= new Date()) {
+      return res.status(400).json({ error: "Deadline must be in the future" });
+    }
+
     // Only allow image files
     if (!file.mimetype.startsWith("image/")) {
       return res.status(400).json({ error: "Invalid file type" });
