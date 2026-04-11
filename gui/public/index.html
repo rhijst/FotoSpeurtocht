@@ -56,9 +56,9 @@
       <div class="response" id="login-response"></div>
     </div>
 
-    <!-- REGISTER FOR TARGET -->
+    <!-- JOIN TARGET -->
     <div class="card">
-      <h2>Register for Target</h2>
+      <h2>Join Target</h2>
       <div>
         <label>Select Target</label>
         <select id="join-target-id">
@@ -66,12 +66,16 @@
         </select>
         <button class="secondary" onclick="refreshJoinTargets()" style="margin-top:.5rem">Refresh list</button>
       </div>
-      <div>
-        <label>Your Photo</label>
-        <input type="file" id="join-photo" accept="image/*"/>
-      </div>
-      <button onclick="joinTarget()">Register &amp; Submit Photo</button>
+      <button onclick="joinTarget()">Join Target</button>
       <div class="response" id="join-response"></div>
+    </div>
+
+    <!-- MY PARTICIPATIONS -->
+    <div class="card">
+      <h2>My Participations</h2>
+      <button onclick="loadMyParticipations()">Refresh</button>
+      <div id="participations-list" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem"></div>
+      <div class="response" id="participations-response"></div>
     </div>
 
     <!-- TARGETS LIST -->
@@ -200,17 +204,16 @@
     async function joinTarget() {
       const targetId = document.getElementById('join-target-id').value;
       if (!targetId) { alert('Please select a target first.'); return; }
-      const file = document.getElementById('join-photo').files[0];
-      if (!file) { alert('Please select a photo to upload.'); return; }
 
-      // Step 1: register as participant
       const joinRes = await fetch(`${API}/participants`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeader() },
         body: JSON.stringify({ targetId }),
       });
       const joinData = await joinRes.json();
-      if (!joinRes.ok) { showResponse('join-response', joinData, false); return; }
+      showResponse('join-response', joinData, joinRes.ok);
+      if (joinRes.ok) loadMyParticipations();
+    }
 
       // Step 2: upload photo
       // const fd = new FormData();
@@ -223,6 +226,32 @@
       // });
       // const scoreData = await scoreRes.json();
       // showResponse('join-response', { join: joinData, score: scoreData }, scoreRes.ok);
+    async function loadMyParticipations() {
+      const res = await fetch(`${API}/participants/me`, { headers: authHeader() });
+      if (!res.ok) { showResponse('participations-response', await res.json(), false); return; }
+      const data = await res.json();
+      const list = document.getElementById('participations-list');
+      list.innerHTML = '';
+      if (!Array.isArray(data) || data.length === 0) {
+        list.innerHTML = '<p style="color:#94a3b8;font-size:.8rem">No participations yet.</p>';
+        return;
+      }
+      const targets = await fetch(`${API}/targets`, { headers: authHeader() })
+        .then(r => r.ok ? r.json() : []).catch(() => []);
+      const targetMap = Object.fromEntries((Array.isArray(targets) ? targets : []).map(t => [t._id || t.id, t.title]));
+      data.forEach(p => {
+        const statusColor = p.status === 'CONFIRMED' ? '#22c55e' : p.status === 'REJECTED' ? '#ef4444' : '#f59e0b';
+        const div = document.createElement('div');
+        div.className = 'target-item';
+        div.innerHTML = `
+          <div class="info">
+            <strong>${targetMap[p.targetId] || p.targetId}</strong>
+            <p style="font-size:.75rem;color:#94a3b8">Joined: ${new Date(p.joinedAt).toLocaleDateString()}</p>
+          </div>
+          <span style="color:${statusColor};font-weight:600;font-size:.8rem;flex-shrink:0">${p.status}</span>
+        `;
+        list.appendChild(div);
+      });
     }
 
     // ─── Targets ─────────────────────────────────────────────────────
@@ -283,7 +312,7 @@
 
     // ─── Init ─────────────────────────────────────────────────────────
     refreshTokenBar();
-    if (getToken()) { loadTargets(); refreshJoinTargets(); }
+    if (getToken()) { loadTargets(); refreshJoinTargets(); loadMyParticipations(); }
   </script>
 </body>
 </html>
