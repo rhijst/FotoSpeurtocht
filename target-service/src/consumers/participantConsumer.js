@@ -33,9 +33,8 @@ function startParticipantConsumer() {
 
     if (!target) {
       result = "REJECTED";
-    } else if (new Date(target.deadline) < new Date()) {
-      result = "REJECTED DEADLINE PASSED";
-    } else {
+    }
+     else {
       result = "CONFIRMED";
     }
 

@@ -14,7 +14,8 @@ const targetSchema = new mongoose.Schema({
   // Sla alleen URL op
   imageUrl: { type: String, required: true },
 
-  deadline: { type: Date, required: true }
+  deadline: { type: Date, required: true },
+  deadlineReached: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Target", targetSchema);

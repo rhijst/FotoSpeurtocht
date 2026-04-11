@@ -6,6 +6,7 @@ const connectDB = require("./config/db");
 const targetRoutes = require("./routes/targetRoutes");
 const { connectRabbit } = require("./config/rabbit");
 const { startParticipantConsumer } = require("./consumers/participantConsumer");
+const { startDeadlineConsumer } = require("./consumers/deadlineConsumer");
 
 const app = express();
 
@@ -24,6 +25,7 @@ connectDB();
 // connect rabbitMQ
 connectRabbit().then(() => {
   startParticipantConsumer();
+  startDeadlineConsumer();
 });
 
 // routes
