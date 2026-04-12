@@ -32,6 +32,10 @@ connectRabbit().then(() => {
 // routes
 app.use("/participants", participantRoutes);
 
+app.get("/status", (req, res) => {
+  res.json({ status: "Join service running" });
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Join service running on port ${process.env.PORT}`);
 });

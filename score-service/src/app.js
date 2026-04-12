@@ -26,6 +26,10 @@ connectRabbit().then(() => {
 
 app.use('/score', scoreRoutes);
 
+app.get('/status', (req, res) => {
+  res.json({ status: 'Score service running' });
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Score service running on port ${process.env.PORT}`);
 });

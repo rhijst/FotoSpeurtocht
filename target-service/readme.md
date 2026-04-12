@@ -58,6 +58,17 @@ http://localhost:3002
 
 # API Endpoints
 
+## Health Check
+
+GET /status
+
+Response:
+
+{
+"status": "Target service running"
+}
+
+
 # Create Target
 
 POST /targets
@@ -192,3 +203,6 @@ The API can be tested using:
 * Insomnia
 * curl
 
+Example:
+
+curl -X GET http://localhost:3002/status

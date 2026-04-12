@@ -23,6 +23,10 @@ connectRabbit().then(() => {
   startScheduler();
 });
 
+app.get("/status", (req, res) => {
+  res.json({ status: "Clock service running" });
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Clock service running on port ${process.env.PORT}`);
 });

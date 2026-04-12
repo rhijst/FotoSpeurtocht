@@ -140,6 +140,10 @@ app.use(
 /*
 Health check
 */
+app.get('/status', (req, res) => {
+  res.json({ status: 'Gateway running' });
+});
+
 app.listen(3000, () => {
   console.log('Gateway running on port 3000');
 });

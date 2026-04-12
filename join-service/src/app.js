@@ -20,6 +20,10 @@ app.use((req, res, next) => {
 
 app.use('/auth', authRoutes);
 
+app.get('/status', (req, res) => {
+  res.json({ status: 'Register service running ' });
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Register service running on port ${process.env.PORT}`);
 });
