@@ -47,6 +47,7 @@ exports.joinTarget = async (req, res) => {
 exports.submitTarget = async (req, res) => {
   try {
     const userId = req.headers["x-user-id"];
+    const email = req.headers["x-user-email"];
     const { participationId, targetId } = req.body;
     const file = req.file;
 
@@ -75,6 +76,7 @@ exports.submitTarget = async (req, res) => {
     // Event
     await publishEvent("events", "participant.submitted", {
       submissionId: submission._id,
+      email,
       participationId,
       userId,
       targetId,

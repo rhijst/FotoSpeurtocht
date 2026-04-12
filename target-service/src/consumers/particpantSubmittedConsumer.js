@@ -23,6 +23,9 @@ function startSubmissionConsumer() {
 
         if (mongoose.Types.ObjectId.isValid(event.targetId)) {
             const target = await Target.findById(event.targetId);
+            if (new Date(target.deadline) < new Date()) {
+                status = "rejected deadline passed";
+            }
 
             if (target && new Date(target.deadline) > new Date()) {
                 status = "ACCEPTED";

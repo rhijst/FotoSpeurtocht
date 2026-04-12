@@ -3,6 +3,7 @@ const { sendMail } = require('../services/mailService');
 async function handleUserRegistered(payload) {
     if (!payload.email) throw new Error("Missing email");
 
+    return; // Disable welcome emails for now
     await sendMail(
         payload.email,
         'Welcome!',

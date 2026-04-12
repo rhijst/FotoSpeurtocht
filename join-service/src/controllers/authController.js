@@ -16,7 +16,7 @@ exports.verify = async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        res.json({ userId: user._id });
+        res.json({ userId: user._id, email: user.email });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

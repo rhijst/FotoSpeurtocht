@@ -54,6 +54,7 @@ function startParticipantSubmittedConsumer() {
         exchange,
         'score.calculated',
         Buffer.from(JSON.stringify({
+          email: event.email,
           participationId: event.participationId,
           userId: event.userId,
           targetId: event.targetId,
