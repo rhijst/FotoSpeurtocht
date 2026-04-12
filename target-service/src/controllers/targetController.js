@@ -104,6 +104,46 @@ exports.getTargets = async (req, res) => {
 };
 
 // ========================
+// GET TARGETS BY LOCATION
+// ========================
+exports.getTargetsByLocation = async (req, res) => {
+  try {
+    const { locationName } = req.query;
+
+    if (!locationName) {
+      return res.status(400).json({ error: "locationName query parameter is required" });
+    }
+
+    const targets = await Target.find({
+      locationName: { $regex: locationName, $options: 'i' }
+    });
+
+    if (targets.length === 0) {
+      return res.status(404).json({ message: `No targets found for location: ${locationName}` });
+    }
+
+    const targetsForFrontend = targets.map(target => ({
+      id: target._id,
+      ownerId: target.ownerId,
+      title: target.title,
+      description: target.description,
+      locationName: target.locationName,
+      coordinates: target.coordinates,
+      radius: target.radius,
+      imageUrl: target.imageUrl,
+      deadline: target.deadline,
+      createdAt: target.createdAt,
+      updatedAt: target.updatedAt
+    }));
+
+    res.json(targetsForFrontend);
+  } catch (err) {
+    console.error("Error fetching targets by location:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ========================
 // DELETE TARGET
 // ========================
 exports.deleteTarget = async (req, res) => {
