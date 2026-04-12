@@ -23,7 +23,7 @@ function startTargetCreatedConsumer() {
 
             console.log('[SCORE] target created:', event);
 
-            // 🔥 score the target image itself (baseline)
+            // score the target image itself (baseline)
             const result = await scoreImage(event.imageURL, []);
 
             // store baseline score

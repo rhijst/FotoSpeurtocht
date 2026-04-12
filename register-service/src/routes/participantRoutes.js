@@ -6,5 +6,8 @@ const upload = require("../config/multer");
 router.post("/", controller.joinTarget);
 router.get("/me", controller.getMyParticipants);
 router.post("/submit", upload.single("image"), controller.submitTarget);
+router.get("/submissions/me", controller.getMySubmissions);
+router.delete("/submissions/:id", controller.deleteSubmission);
+router.patch("/submissions/:id/remove-photo", controller.removePhoto);
 
 module.exports = router;

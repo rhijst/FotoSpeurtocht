@@ -51,7 +51,7 @@ function startDeadlineReminderTickConsumer() {
     console.log(`[REGISTER] Reminder tick received for target ${targetId}`);
 
     try {
-      const participants = await Participant.find({ targetId, status: "CONFIRMED" });
+      const participants = await Participant.find({ targetId, status: "ACCEPTED" });
 
       for (const participant of participants) {
         const submission = await Submission.findOne({

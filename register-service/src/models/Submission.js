@@ -4,8 +4,8 @@ const submissionSchema = new mongoose.Schema({
     participationId: { type: String, required: true },
     userId: { type: String, required: true },
     targetId: { type: String, required: true },
-
-    imageUrl: { type: String, required: true },
+    score: { type: Number, default: null },
+    imageUrl: { type: String, required: false },
 
     status: {
         type: String,

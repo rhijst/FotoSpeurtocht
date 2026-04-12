@@ -6,7 +6,7 @@ const participant = new mongoose.Schema({
 
   status: {
     type: String,
-    status: ["PENDING", "CONFIRMED", "REJECTED"],
+    status: ["PENDING", "ACCEPTED", "REJECTED"],
     default: "PENDING"
   },
 

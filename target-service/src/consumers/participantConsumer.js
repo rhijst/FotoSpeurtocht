@@ -36,7 +36,7 @@ function startParticipantConsumer() {
     } else if (target.deadlineReached) {
       result = "REJECTED - DEADLINE REACHED";
     } else {
-      result = "CONFIRMED";
+      result = "ACCEPTED";
     }
 
     const payload = {

@@ -50,7 +50,7 @@
       <button onclick="login()">Login &amp; save token</button>
       <div class="response" id="login-response"></div>
     </div>
-    
+
     <!-- CREATE TARGET -->
     <div class="card">
       <h2>Create Target</h2>
@@ -135,6 +135,17 @@
       <div class="response" id="submit-response"></div>
     </div>
 
+    <!-- MY SUBMISSIONS -->
+    <div class="card">
+      <h2>My Submissions</h2>
+      <button onclick="loadMySubmissions()">Refresh</button>
+
+      <div id="submissions-list" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem">
+      </div>
+
+      <div class="response" id="submissions-response"></div>
+    </div>
+
     <!-- TARGETS LIST -->
     <div class="card">
       <h2>Targets</h2>
@@ -142,8 +153,6 @@
       <div id="targets-list" style="display:flex;flex-direction:column;gap:.5rem;"></div>
       <div class="response" id="targets-response"></div>
     </div>
-
-
 
   </div>
 
@@ -265,6 +274,101 @@
       if (res.ok) {
         refreshParticipationSelect();
         loadMyParticipations();
+        loadMySubmissions();
+      }
+    }
+
+
+    // ─── Submission ─────────────────────────────────────────
+    async function loadMySubmissions() {
+      const res = await fetch(`${API}/participants/submissions/me`, {
+        headers: authHeader()
+      });
+
+      if (!res.ok) {
+        showResponse('submissions-response', await res.json(), false);
+        return;
+      }
+
+      const data = await res.json();
+      const list = document.getElementById('submissions-list');
+      list.innerHTML = '';
+
+      if (!Array.isArray(data) || data.length === 0) {
+        list.innerHTML = '<p style="color:#94a3b8;font-size:.8rem">No submissions yet.</p>';
+        return;
+      }
+
+      data.forEach(s => {
+        const statusColor =
+          s.status === 'ACCEPTED' ? '#22c55e' :
+            s.status === 'REJECTED' ? '#ef4444' :
+              '#f59e0b';
+
+        const div = document.createElement('div');
+        div.className = 'target-item';
+
+        div.innerHTML = `
+          ${s.imageUrl ? `<img src="${s.imageUrl}" style="width:80px;height:80px;object-fit:cover;border-radius:6px"/>` : '<span style="color:#94a3b8">No photo</span>'}
+
+          <div class="info">
+            <strong>Target: ${s.targetId}</strong>
+            <p style="font-size:.75rem;color:#94a3b8">
+              Submitted: ${new Date(s.submittedAt).toLocaleString()}
+            </p>
+          </div>
+
+
+
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem">
+            
+            <span style="color:${statusColor};font-weight:600;font-size:.8rem">
+              ${s.status}
+              ${s.score != null ? ` (${Math.round(s.score)}%)` : ''}
+            </span>
+
+            ${s.imageUrl
+            ? `<button onclick="removePhoto('${s.id}')">Remove Photo</button>`
+            : `<span style="font-size:.7rem;color:#94a3b8">Use "Submit Photo" above</span>`
+          }
+
+            <button class="danger" onclick="deleteSubmission('${s.id}')">✕</button>
+          </div>
+        `;
+
+        list.appendChild(div);
+      });
+    }
+
+    async function removePhoto(id) {
+      if (!confirm("Remove photo?")) return;
+
+      const res = await fetch(`${API}/participants/submissions/${id}/remove-photo`, {
+        method: "PATCH",
+        headers: authHeader()
+      });
+
+      const data = await res.json();
+      showResponse('submissions-response', data, res.ok);
+
+      if (res.ok) {
+        loadMySubmissions();
+      }
+    }
+
+    async function deleteSubmission(id) {
+      if (!confirm("Delete this submission?")) return;
+
+      const res = await fetch(`${API}/participants/submissions/${id}`, {
+        method: 'DELETE',
+        headers: authHeader()
+      });
+
+      const data = await res.json();
+      showResponse('submissions-response', data, res.ok);
+
+      if (res.ok) {
+        loadMySubmissions();
       }
     }
 
@@ -298,17 +402,6 @@
       if (joinRes.ok) loadMyParticipations();
     }
 
-    // Step 2: upload photo
-    // const fd = new FormData();
-    // fd.append('image', file);
-    // fd.append('targetId', targetId);
-    // const scoreRes = await fetch(`${API}/score/upload`, {
-    //   method: 'POST',
-    //   headers: authHeader(),
-    //   body: fd,
-    // });
-    // const scoreData = await scoreRes.json();
-    // showResponse('join-response', { join: joinData, score: scoreData }, scoreRes.ok);
     async function loadMyParticipations() {
       const res = await fetch(`${API}/participants/me`, { headers: authHeader() });
       if (!res.ok) { showResponse('participations-response', await res.json(), false); return; }
@@ -323,7 +416,7 @@
         .then(r => r.ok ? r.json() : []).catch(() => []);
       const targetMap = Object.fromEntries((Array.isArray(targets) ? targets : []).map(t => [t._id || t.id, t.title]));
       data.forEach(p => {
-        const statusColor = p.status === 'CONFIRMED' ? '#22c55e' : p.status === 'REJECTED' ? '#ef4444' : '#f59e0b';
+        const statusColor = p.status === 'ACCEPTED' ? '#22c55e' : p.status === 'REJECTED' ? '#ef4444' : '#f59e0b';
         const div = document.createElement('div');
         div.className = 'target-item';
         div.innerHTML = `
@@ -397,7 +490,13 @@
 
     // ─── Init ─────────────────────────────────────────────────────────
     refreshTokenBar();
-    if (getToken()) { loadTargets(); refreshJoinTargets(); loadMyParticipations(); refreshParticipationSelect(); }
+    if (getToken()) {
+      loadTargets();
+      refreshJoinTargets();
+      loadMyParticipations();
+      refreshParticipationSelect();
+      loadMySubmissions();
+    }
   </script>
 </body>
 
