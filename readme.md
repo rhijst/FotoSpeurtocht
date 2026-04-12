@@ -23,7 +23,7 @@ A photo scavenger hunt application built as a Node.js microservices architecture
 
 ## Authentication
 
-All public-facing endpoints (except `/auth/login`, `/auth/register`, and `/status`) require a JWT Bearer token:
+All public-facing endpoints (except `/auth/login`, `/auth/register`) require a JWT Bearer token:
 
 ```
 Authorization: Bearer <JWT_TOKEN>
@@ -36,14 +36,6 @@ Internal service-to-service communication uses the `x-internal-secret` header. D
 ## Gateway (Port 3000)
 
 > Public entry point. Verifies JWT tokens and proxies requests to the appropriate service.
-
-### Health Check
-```
-GET /status
-```
-Response: `{ "status": "Gateway running" }`
-
----
 
 ### Authentication
 
@@ -198,7 +190,6 @@ Scoring formula: `similarity × 0.8 + speedBonus × 0.2`
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/status` | Health check |
 | POST | `/auth/register` | Register a new user |
 | POST | `/auth/verify` | Verify credentials (internal only) |
 
@@ -212,7 +203,6 @@ Scoring formula: `similarity × 0.8 + speedBonus × 0.2`
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/status` | Health check |
 | POST | `/targets` | Create a new target (multipart/form-data) |
 | GET | `/targets` | Get all targets |
 | DELETE | `/targets/:id` | Delete a target (owner only) |
@@ -228,7 +218,6 @@ Scoring formula: `similarity × 0.8 + speedBonus × 0.2`
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/status` | Health check |
 | POST | `/score/url` | Score image by URL |
 | POST | `/score/upload` | Score image by file upload |
 
@@ -243,7 +232,6 @@ Scoring formula: `similarity × 0.8 + speedBonus × 0.2`
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/status` | Health check |
 | POST | `/participants` | Join a target challenge |
 | GET | `/participants/me` | Get current user's participations |
 | POST | `/participants/submit` | Submit an image for a target |
@@ -257,10 +245,6 @@ Scoring formula: `similarity × 0.8 + speedBonus × 0.2`
 ## Clock-Service (Port 3006)
 
 > Monitors target deadlines and publishes expiration events. No public HTTP endpoints.
-
-| Method | Path | Description |
-|---|---|---|
-| GET | `/status` | Health check |
 
 **RabbitMQ events published:** deadline expiration events  
 **RabbitMQ events consumed:** `target.created`
