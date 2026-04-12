@@ -35,7 +35,9 @@ function startParticipantSubmittedConsumer() {
       // 2. Score submission vs baseline
       const result = await scoreImage(
         event.imageUrl,
-        targetScore.tags
+        targetScore.tags,
+        targetScore.openedAt,
+        targetScore.deadline
       );
 
       // 3. Save submission score

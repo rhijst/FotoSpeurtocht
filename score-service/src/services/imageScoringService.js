@@ -17,25 +17,50 @@ function calculateSimilarity(subTags, targetTags) {
     const subMap = new Map(subTags.map(t => [t.tag.en, t.confidence]));
     const targetMap = new Map(targetTags.map(t => [t.tag.en, t.confidence]));
 
-    let score = 0;
-    let matches = 0;
+    // Weighted similarity over matched tags — high confidence target tags matter more
+    let weightedScore = 0;
+    let totalWeight = 0;
 
     for (const [tag, targetConf] of targetMap.entries()) {
+        const weight = targetConf / 100;
         if (subMap.has(tag)) {
             const subConf = subMap.get(tag);
-
             const diff = Math.abs(targetConf - subConf);
-            const similarity = Math.max(0, 100 - diff);
-
-            // weight by importance of target tag
-            score += similarity * (targetConf / 100);
-            matches++;
+            const tagSimilarity = Math.max(0, 100 - diff);
+            weightedScore += tagSimilarity * weight;
         }
+        // unmatched target tags contribute 0 but still add to total weight
+        totalWeight += weight;
     }
 
-    if (matches === 0) return 0;
+    if (totalWeight === 0) return 0;
 
-    return score / matches;
+    const similarity = weightedScore / totalWeight;
+
+    // Soft penalty for submission tags that don't appear in the target
+    // sqrt keeps many small irrelevant tags from killing the score
+    const unmatchedTags = subTags.filter(t => !targetMap.has(t.tag.en));
+    const rawPenalty = unmatchedTags.reduce((sum, t) => sum + t.confidence, 0) / subTags.length;
+    const softPenalty = Math.sqrt(rawPenalty) * 2;
+
+    return Math.max(0, similarity - softPenalty);
+}
+
+function calculateSpeedBonus(openedAt, deadline) {
+    if (!openedAt || !deadline) return 0;
+
+    const now = Date.now();
+    const open = new Date(openedAt).getTime();
+    const close = new Date(deadline).getTime();
+    const window = close - open;
+
+    if (window <= 0) return 0;
+
+    const timeLeft = close - now;
+    const ratio = Math.max(0, timeLeft / window);
+
+    // Square root curve — even late submissions get something, but early is rewarded
+    return Math.sqrt(ratio) * 100;
 }
 
 async function getTagsFromBuffer(buffer) {
@@ -78,13 +103,13 @@ async function getTagsFromUrl(imageUrl) {
     return getTagsFromBuffer(buffer);
 }
 
-async function scoreImage(imageUrl, targetTags) {
+async function scoreImage(imageUrl, targetTags, openedAt, deadline) {
     const submissionTags = await getTagsFromUrl(imageUrl);
 
     const similarity = calculateSimilarity(submissionTags, targetTags);
-    const speedBonus = 10;
+    const speedBonus = calculateSpeedBonus(openedAt, deadline);
 
-    const finalScore = similarity * 0.8 + speedBonus * 0.2;
+    const finalScore = Math.min(100, Math.max(0, similarity * 0.7 + speedBonus * 0.3));
 
     return {
         submissionTags,

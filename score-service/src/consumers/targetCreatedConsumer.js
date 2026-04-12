@@ -34,7 +34,9 @@ function startTargetCreatedConsumer() {
                 tags: result.submissionTags,
                 similarity: 100,        // baseline
                 speedBonus: 0,
-                finalScore: 100         // reference baseline
+                finalScore: 100,        // reference baseline
+                openedAt: event.openedAt,
+                deadline: event.deadline
             });
 
             console.log(`[SCORE] baseline created for target ${event.targetId}`);

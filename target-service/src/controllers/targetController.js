@@ -63,6 +63,7 @@ exports.createTarget = async (req, res) => {
       targetId: target._id,
       ownerId: req.headers['x-user-id'],
       deadline: target.deadline,
+      openedAt: target.createdAt,
       imageURL: imageUrl
     });
 

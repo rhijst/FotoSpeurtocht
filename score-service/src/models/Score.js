@@ -9,6 +9,8 @@ const scoreSchema = new mongoose.Schema(
     similarity: { type: Number, required: true },
     speedBonus: { type: Number, default: 0 },
     finalScore: { type: Number, required: true },
+    openedAt: { type: Date },
+    deadline: { type: Date },
     createdAt: { type: Date, default: Date.now },
   },
   { collection: 'scores' }
