@@ -39,8 +39,30 @@ async function handleDeadlineReminder(payload) {
     );
 }
 
+async function handleContestWinner(payload) {
+    if (!payload.email) throw new Error("Missing email");
+
+    await sendMail(
+        payload.email,
+        'You won the contest!',
+        `Congratulations! You won the FotoSpeurtocht contest for target ${payload.targetId} with a score of ${Math.round(payload.score)}%. Well done!`
+    );
+}
+
+async function handleContestLoser(payload) {
+    if (!payload.email) throw new Error("Missing email");
+
+    await sendMail(
+        payload.email,
+        'Contest results',
+        `The contest for target ${payload.targetId} has ended. Unfortunately you did not win this time. Your score was ${Math.round(payload.score)}%. Better luck next time!`
+    );
+}
+
 module.exports = {
     handleUserRegistered,
     handleScoreCalculated,
-    handleDeadlineReminder
+    handleDeadlineReminder,
+    handleContestWinner,
+    handleContestLoser
 };
