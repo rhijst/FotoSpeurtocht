@@ -31,10 +31,6 @@ connectRabbit().then(() => {
 // routes
 app.use("/targets", targetRoutes);
 
-app.get("/status", (req, res) => {
-  res.json({ status: "Target service running" });
-});
-
 app.listen(process.env.PORT, () => {
   console.log(`Target service running on port ${process.env.PORT}`);
 });
