@@ -6,6 +6,7 @@ const { connectRabbit } = require("./config/rabbit");
 
 const participantRoutes = require("./routes/participantRoutes");
 const { startParticipantResultConsumer } = require("./consumers/participantResultConsumer");
+const { startDeadlineReminderTickConsumer } = require("./consumers/deadlineReminderTickConsumer");
 
 const app = express();
 app.use(express.json());
@@ -23,6 +24,7 @@ connectDB();
 
 connectRabbit().then(() => {
   startParticipantResultConsumer();
+  startDeadlineReminderTickConsumer();
 });
 
 // routes

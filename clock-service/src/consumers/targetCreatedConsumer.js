@@ -27,7 +27,7 @@ function startTargetCreatedConsumer() {
 
     await Contest.findOneAndUpdate(
       { targetId: String(targetId) },
-      { targetId: String(targetId), deadline: new Date(deadline), notified: false },
+      { targetId: String(targetId), deadline: new Date(deadline), notified: false, lastReminderSent: new Date() },
       { upsert: true, new: true }
     );
 
