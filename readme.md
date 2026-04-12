@@ -11,10 +11,11 @@ A photo scavenger hunt application built as a Node.js microservices architecture
 | [Gateway](#gateway-port-3000) | 3000 | Public entry point – JWT auth, request routing |
 | [Join-Service](#join-service-port-3001) | 3001 | User registration & credential verification |
 | [Target-Service](#target-service-port-3002) | 3002 | Photo target CRUD & image storage |
-| [Register-Service](#register-service-port-3003) | 3003 | Participant management & submission handling |
-| [Score-Service](#score-service-port-3004) | 3004 | AI-powered image scoring via Imagga |
-| [Clock-Service](#clock-service-port-3005) | 3005 | Deadline scheduling |
-| [Mail-Service](#mail-service) | — | Async email notifications (RabbitMQ only) |
+| [Score-Service](#score-service-port-3003) | 3003 | AI-powered image scoring via Imagga |
+| [Mail-Service](#mail-service) | 3004 | Async email notifications (RabbitMQ only) |
+| [Register-Service](#register-service-port-3005) | 3005 | Participant management & submission handling |
+| [Clock-Service](#clock-service-port-3006) | 3006 | Deadline scheduling |
+| GUI | 8080 | Interface |
 
 **Infrastructure:** MongoDB · MinIO (image storage) · RabbitMQ (async messaging)
 
@@ -127,7 +128,7 @@ Body:
 ```
 Response: `{ "_id": "...", "userId": "...", "targetId": "...", "status": "PENDING" }`
 
-#### Get My Participations
+#### Get My Participations (Which targets did i join?)
 ```
 GET /participants/me
 Authorization: Bearer <token>
@@ -221,7 +222,22 @@ Scoring formula: `similarity × 0.8 + speedBonus × 0.2`
 
 ---
 
-## Register-Service (Port 3003)
+## Score-Service (Port 3003)
+
+> Analyzes submitted images using the Imagga AI API and calculates scores. Only accessible internally via the gateway.
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/status` | Health check |
+| POST | `/score/url` | Score image by URL |
+| POST | `/score/upload` | Score image by file upload |
+
+**External API:** Imagga Tags API  
+**RabbitMQ events consumed:** `participant.submitted` (triggers auto-scoring)
+
+---
+
+## Register-Service (Port 3005)
 
 > Tracks user participations and handles image submissions. Only accessible internally via the gateway.
 
@@ -237,22 +253,8 @@ Scoring formula: `similarity × 0.8 + speedBonus × 0.2`
 
 ---
 
-## Score-Service (Port 3004)
 
-> Analyzes submitted images using the Imagga AI API and calculates scores. Only accessible internally via the gateway.
-
-| Method | Path | Description |
-|---|---|---|
-| GET | `/status` | Health check |
-| POST | `/score/url` | Score image by URL |
-| POST | `/score/upload` | Score image by file upload |
-
-**External API:** Imagga Tags API  
-**RabbitMQ events consumed:** `participant.submitted` (triggers auto-scoring)
-
----
-
-## Clock-Service (Port 3005)
+## Clock-Service (Port 3006)
 
 > Monitors target deadlines and publishes expiration events. No public HTTP endpoints.
 
