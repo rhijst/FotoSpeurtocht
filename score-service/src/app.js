@@ -2,7 +2,8 @@ const express = require('express');
 require('dotenv').config();
 const connectDB = require('./config/db');
 const { connectRabbit } = require('./config/rabbit');
-const { startConsumer } = require('./services/rabbitConsumer');
+const { startTargetCreatedConsumer } = require('./consumers/targetCreatedConsumer');
+const { startParticipantSubmittedConsumer } = require('./consumers/participantSubmittedconsumer');
 const scoreRoutes = require('./routes/scoreRoutes');
 
 const app = express();
@@ -18,7 +19,10 @@ app.use((req, res, next) => {
 connectDB();
 
 // Connect to RabbitMQ and start listening for events
-connectRabbit().then(startConsumer);
+connectRabbit().then(() => {
+  startTargetCreatedConsumer();
+  startParticipantSubmittedConsumer();
+});
 
 app.use('/score', scoreRoutes);
 
