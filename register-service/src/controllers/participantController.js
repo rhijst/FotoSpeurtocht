@@ -49,6 +49,8 @@ exports.submitTarget = async (req, res) => {
     const userId = req.headers["x-user-id"];
     const email = req.headers["x-user-email"];
     const { participationId, targetId } = req.body;
+    const participation = await Participant.findById(participationId);
+    const targetOwnerId = participation?.targetOwnerId ?? null;
     const file = req.file;
 
     if (!file) return res.status(400).json({ error: "No file uploaded" });
@@ -77,6 +79,7 @@ exports.submitTarget = async (req, res) => {
       existing.imageUrl = imageUrl;
       existing.status = "PENDING";
       existing.submittedAt = new Date();
+      if (!existing.targetOwnerId && targetOwnerId) existing.targetOwnerId = targetOwnerId;
 
       await existing.save();
 
@@ -109,6 +112,7 @@ exports.submitTarget = async (req, res) => {
       participationId,
       userId,
       targetId,
+      targetOwnerId,
       imageUrl
     });
 
@@ -160,6 +164,30 @@ exports.getMySubmissions = async (req, res) => {
   }
 };
 
+exports.getSubmissionsOnMyTargets = async (req, res) => {
+  try {
+    const userId = req.headers["x-user-id"];
+
+    const submissions = await Submission.find({ targetOwnerId: userId });
+
+    const formatted = submissions.map(sub => ({
+      id: sub._id,
+      targetId: sub.targetId,
+      participationId: sub.participationId,
+      submittedBy: sub.userId,
+      imageUrl: sub.imageUrl,
+      status: sub.status,
+      score: sub.score,
+      submittedAt: sub.submittedAt
+    }));
+
+    res.json(formatted);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.deleteSubmission = async (req, res) => {
   try {
     const userId = req.headers["x-user-id"];
@@ -171,8 +199,10 @@ exports.deleteSubmission = async (req, res) => {
       return res.status(404).json({ error: "Submission not found" });
     }
 
-    // ownership check
-    if (submission.userId !== userId) {
+    // allow submission owner OR the target owner to delete
+    const isSubmissionOwner = submission.userId === userId;
+    const isTargetOwner = submission.targetOwnerId && submission.targetOwnerId === userId;
+    if (!isSubmissionOwner && !isTargetOwner) {
       return res.status(403).json({ error: "Not allowed" });
     }
 

@@ -43,6 +43,7 @@ function startParticipantConsumer() {
       participationId: event.participationId,
       userId: event.userId,
       targetId: event.targetId,
+      targetOwnerId: target ? target.ownerId : null,
       status: result
     };
 

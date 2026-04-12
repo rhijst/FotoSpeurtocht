@@ -146,6 +146,14 @@
       <div class="response" id="submissions-response"></div>
     </div>
 
+    <!-- SUBMISSIONS ON MY TARGETS -->
+    <div class="card">
+      <h2>Submissions on My Targets</h2>
+      <button onclick="loadSubmissionsOnMyTargets()">Refresh</button>
+      <div id="my-target-submissions-list" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem"></div>
+      <div class="response" id="my-target-submissions-response"></div>
+    </div>
+
     <!-- TARGETS LIST -->
     <div class="card">
       <h2>Targets</h2>
@@ -356,7 +364,7 @@
       }
     }
 
-    async function deleteSubmission(id) {
+    async function deleteSubmission(id, fromTargetOwnerView = false) {
       if (!confirm("Delete this submission?")) return;
 
       const res = await fetch(`${API}/participants/submissions/${id}`, {
@@ -365,11 +373,58 @@
       });
 
       const data = await res.json();
-      showResponse('submissions-response', data, res.ok);
+      const responseEl = fromTargetOwnerView ? 'my-target-submissions-response' : 'submissions-response';
+      showResponse(responseEl, data, res.ok);
 
       if (res.ok) {
         loadMySubmissions();
+        loadSubmissionsOnMyTargets();
       }
+    }
+
+    async function loadSubmissionsOnMyTargets() {
+      const res = await fetch(`${API}/participants/submissions/on-my-targets`, {
+        headers: authHeader()
+      });
+
+      if (!res.ok) {
+        showResponse('my-target-submissions-response', await res.json(), false);
+        return;
+      }
+
+      const data = await res.json();
+      const list = document.getElementById('my-target-submissions-list');
+      list.innerHTML = '';
+
+      if (!Array.isArray(data) || data.length === 0) {
+        list.innerHTML = '<p style="color:#94a3b8;font-size:.8rem">No submissions on your targets yet.</p>';
+        return;
+      }
+
+      data.forEach(s => {
+        const statusColor =
+          s.status === 'ACCEPTED' ? '#22c55e' :
+          s.status === 'REJECTED' ? '#ef4444' :
+          '#f59e0b';
+
+        const div = document.createElement('div');
+        div.className = 'target-item';
+        div.innerHTML = `
+          ${s.imageUrl ? `<img src="${s.imageUrl}" style="width:80px;height:80px;object-fit:cover;border-radius:6px"/>` : '<span style="color:#94a3b8;font-size:.75rem">No photo</span>'}
+          <div class="info">
+            <strong>Target: ${s.targetId}</strong>
+            <p style="font-size:.75rem;color:#94a3b8">By user: ${s.submittedBy}</p>
+            <p style="font-size:.75rem;color:#94a3b8">Submitted: ${new Date(s.submittedAt).toLocaleString()}</p>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem">
+            <span style="color:${statusColor};font-weight:600;font-size:.8rem">
+              ${s.status}${s.score != null ? ` (${Math.round(s.score)}%)` : ''}
+            </span>
+            <button class="danger" onclick="deleteSubmission('${s.id}', true)">✕</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
     }
 
 
@@ -496,6 +551,7 @@
       loadMyParticipations();
       refreshParticipationSelect();
       loadMySubmissions();
+      loadSubmissionsOnMyTargets();
     }
   </script>
 </body>

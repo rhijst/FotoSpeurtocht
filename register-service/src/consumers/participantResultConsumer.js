@@ -21,7 +21,8 @@ function startParticipantResultConsumer() {
     console.log("[JOIN] result received:", event);
 
     await Participant.findByIdAndUpdate(event.participationId, {
-      status: event.status
+      status: event.status,
+      targetOwnerId: event.targetOwnerId ?? null
     });
 
     channel.ack(msg);

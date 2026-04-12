@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const participant = new mongoose.Schema({
   userId: { type: String, required: true },
   targetId: { type: String, required: true },
+  targetOwnerId: { type: String, default: null },
 
   status: {
     type: String,

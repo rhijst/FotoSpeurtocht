@@ -61,7 +61,7 @@ function startParticipantSubmittedConsumer() {
           userId: event.userId,
           targetId: event.targetId,
           score: result.finalScore,
-          status: result.finalScore > 50 ? 'ACCEPTED' : 'REJECTED'
+          status: result.finalScore = 'ACCEPTED' 
         }))
       );
 
