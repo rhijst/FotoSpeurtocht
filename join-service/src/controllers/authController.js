@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
-const { getChannel } = require('../config/rabbit');
+const { publishEvent } = require('../services/rabbitService');
 
 exports.verify = async (req, res) => {
     try {
@@ -48,8 +48,7 @@ exports.register = async (req, res) => {
             password_hash: hashedPassword,
         });
 
-        const channel = getChannel();
-        channel.publish('events', 'user.registered', Buffer.from(JSON.stringify({ email: user.email })), { persistent: true });
+        await publishEvent('events', 'user.registered', { email: user.email });
 
         res.status(201).json({
             id: user._id,

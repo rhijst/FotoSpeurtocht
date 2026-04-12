@@ -1,4 +1,5 @@
 const { getChannel } = require('../config/rabbit');
+const { publishEvent } = require('../services/rabbitService');
 const Score = require('../models/Score');
 const { scoreImage } = require('../services/imageScoringService');
 
@@ -52,19 +53,14 @@ function startParticipantSubmittedConsumer() {
       });
 
       // 4. Publish result
-      channel.publish(
-        exchange,
-        'score.calculated',
-        Buffer.from(JSON.stringify({
-          email: event.email,
-          participationId: event.participationId,
-          userId: event.userId,
-          targetId: event.targetId,
-          score: result.finalScore,
-          status: result.finalScore = 'ACCEPTED'
-        })),
-        { persistent: true }
-      );
+      await publishEvent(exchange, 'score.calculated', {
+        email: event.email,
+        participationId: event.participationId,
+        userId: event.userId,
+        targetId: event.targetId,
+        score: result.finalScore,
+        status: result.finalScore = 'ACCEPTED'
+      });
 
       channel.ack(msg);
 

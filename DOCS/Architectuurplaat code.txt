@@ -1,0 +1,72 @@
+@startuml
+title FotoSpeurtocht Microservices Architecture
+
+skinparam componentStyle rectangle
+
+' === Actors ===
+actor User
+
+' === Gateway ===
+component "API Gateway\n:3000" as Gateway
+
+' === Services ===
+component "Join-Service\n:3001" as Join
+component "Target-Service\n:3002" as Target
+component "Score-Service\n:3003" as Score
+component "Mail-Service\n:3004" as Mail
+component "Register-Service\n:3005" as Register
+component "Clock-Service\n:3006" as Clock
+
+component "GUI\n:8080" as GUI
+
+' === Infrastructure ===
+database "MongoDB\n(Join)" as MongoJoin
+database "MongoDB\n(Target)" as MongoTarget
+database "MongoDB\n(Score)" as MongoScore
+database "MongoDB\n(Register)" as MongoRegister
+database "MongoDB\n(Clock)" as MongoClock
+
+component "RabbitMQ" as Rabbit
+component "MinIO\n(Image Storage)" as MinIO
+component "Imagga API" as Imagga
+
+' === User Flow ===
+User --> GUI
+GUI --> Gateway
+
+' === Gateway Routing ===
+Gateway --> Join : /auth/*
+Gateway --> Target : /targets
+Gateway --> Register : /participants
+Gateway --> Score : /score
+
+' === Service DB Connections ===
+Join --> MongoJoin
+Target --> MongoTarget
+Score --> MongoScore
+Register --> MongoRegister
+Clock --> MongoClock
+
+' === Storage ===
+Target --> MinIO : store images
+
+' === External API ===
+Score --> Imagga : analyze images
+
+' === Messaging (RabbitMQ) ===
+Join --> Rabbit : user.registered
+Target --> Rabbit : target.created
+Register --> Rabbit : participant.*
+
+Score --> Rabbit : score.calculated
+Clock --> Rabbit : deadline events
+
+Rabbit --> Mail : notifications
+Rabbit --> Target
+Rabbit --> Register
+Rabbit --> Score
+Rabbit --> Clock
+
+' === Mail Service ===
+Mail --> User : email notifications
+@enduml

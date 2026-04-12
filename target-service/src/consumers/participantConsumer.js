@@ -1,4 +1,5 @@
 const { getChannel } = require("../config/rabbit");
+const { publishEvent } = require("../services/rabbitService");
 const Target = require("../models/Target");
 const mongoose = require("mongoose");
 
@@ -47,12 +48,7 @@ function startParticipantConsumer() {
       status: result
     };
 
-    channel.publish(
-      exchange,
-      "participant.join.result",
-      Buffer.from(JSON.stringify(payload)),
-      { persistent: true }
-    );
+    await publishEvent(exchange, "participant.join.result", payload);
 
     channel.ack(msg);
   });

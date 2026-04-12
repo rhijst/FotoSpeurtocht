@@ -1,0 +1,413 @@
+openapi: 3.0.3
+info:
+  title: FotoSpeurtocht API
+  description: Photo scavenger hunt microservices API (Gateway)
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+
+    AuthRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    Target:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        locationName:
+          type: string
+        coordinates:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+        radius:
+          type: number
+        deadline:
+          type: string
+          format: date-time
+        imageUrl:
+          type: string
+
+    Participation:
+      type: object
+      properties:
+        _id:
+          type: string
+        userId:
+          type: string
+        targetId:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, ACCEPTED, REJECTED]
+
+    Submission:
+      type: object
+      properties:
+        _id:
+          type: string
+        participationId:
+          type: string
+        userId:
+          type: string
+        targetId:
+          type: string
+        imageUrl:
+          type: string
+        score:
+          type: number
+
+    ScoreResponse:
+      type: object
+      properties:
+        similarity:
+          type: number
+        speedBonus:
+          type: number
+        finalScore:
+          type: number
+        tags:
+          type: array
+          items:
+            type: object
+            properties:
+              tag:
+                type: object
+                properties:
+                  en:
+                    type: string
+              confidence:
+                type: number
+
+security:
+  - bearerAuth: []
+
+paths:
+
+  # ================= AUTH =================
+  /auth/register:
+    post:
+      summary: Register a new user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        200:
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /auth/login:
+    post:
+      summary: Login user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        200:
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /auth/users/{userId}:
+    get:
+      summary: Get user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: User object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  # ================= TARGETS =================
+  /targets:
+    get:
+      summary: Get all targets
+      responses:
+        200:
+          description: List of targets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Target'
+
+    post:
+      summary: Create a target
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, description, lat, lng, radius, deadline, image]
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                locationName:
+                  type: string
+                lat:
+                  type: number
+                lng:
+                  type: number
+                radius:
+                  type: number
+                deadline:
+                  type: string
+                  format: date-time
+                image:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Created target
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Target'
+
+  /targets/search:
+    get:
+      summary: Search targets by location name
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Matching targets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Target'
+
+  /targets/{targetId}:
+    delete:
+      summary: Delete a target
+      parameters:
+        - name: targetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Target deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  # ================= PARTICIPANTS =================
+  /participants:
+    post:
+      summary: Join a target
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetId]
+              properties:
+                targetId:
+                  type: string
+      responses:
+        200:
+          description: Participation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Participation'
+
+  /participants/me:
+    get:
+      summary: Get my participations
+      responses:
+        200:
+          description: List of participations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Participation'
+
+  /participants/submit:
+    post:
+      summary: Submit image for a target
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [participationId, targetId, image]
+              properties:
+                participationId:
+                  type: string
+                targetId:
+                  type: string
+                image:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Submission stored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+
+  /participants/submissions/me:
+    get:
+      summary: Get my submissions
+      responses:
+        200:
+          description: List of submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Submission'
+
+  /participants/submissions/on-my-targets:
+    get:
+      summary: Get submissions on my targets
+      responses:
+        200:
+          description: List of submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Submission'
+
+  /participants/submissions/{id}:
+    delete:
+      summary: Delete a submission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Submission deleted
+
+  /participants/submissions/{id}/remove-photo:
+    patch:
+      summary: Remove photo and reset submission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Updated submission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+
+  # ================= SCORE =================
+  /score/upload:
+    post:
+      summary: Score an uploaded image
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image, targetId]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                targetId:
+                  type: string
+                language:
+                  type: string
+                limit:
+                  type: integer
+                threshold:
+                  type: number
+      responses:
+        200:
+          description: Score result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreResponse'
