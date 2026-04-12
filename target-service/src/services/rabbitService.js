@@ -8,7 +8,7 @@ async function publishEvent(exchange, routingKey, payload) {
     await channel.assertExchange(exchange, 'topic', { durable: true });
 
     // Publish the message
-    channel.publish(exchange, routingKey, Buffer.from(JSON.stringify(payload)));
+    channel.publish(exchange, routingKey, Buffer.from(JSON.stringify(payload)), { persistent: true });
 
     // Optional: log for debugging
     console.log(`Published event to ${exchange}:${routingKey}`, payload);

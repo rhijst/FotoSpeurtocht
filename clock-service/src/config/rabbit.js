@@ -8,6 +8,7 @@ async function connectRabbit() {
     try {
       const connection = await amqp.connect(process.env.RABBITMQ_URL);
       channel = await connection.createChannel();
+      await channel.assertExchange('events', 'topic', { durable: true });
       console.log("RabbitMQ connected (Clock Service)");
       return;
     } catch (err) {

@@ -50,7 +50,8 @@ function startParticipantConsumer() {
     channel.publish(
       exchange,
       "participant.join.result",
-      Buffer.from(JSON.stringify(payload))
+      Buffer.from(JSON.stringify(payload)),
+      { persistent: true }
     );
 
     channel.ack(msg);

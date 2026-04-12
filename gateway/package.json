@@ -11,7 +11,8 @@
     "dotenv": "^16.6.1",
     "express": "^4.22.1",
     "http-proxy-middleware": "^2.0.6",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "opossum": "^9.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

@@ -61,8 +61,9 @@ function startParticipantSubmittedConsumer() {
           userId: event.userId,
           targetId: event.targetId,
           score: result.finalScore,
-          status: result.finalScore = 'ACCEPTED' 
-        }))
+          status: result.finalScore = 'ACCEPTED'
+        })),
+        { persistent: true }
       );
 
       channel.ack(msg);

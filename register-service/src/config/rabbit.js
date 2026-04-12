@@ -9,7 +9,8 @@ async function connectRabbit() {
       const connection = await amqp.connect(process.env.RABBITMQ_URL);
       
       channel = await connection.createChannel();
-      console.log("RabbitMQ connected");
+      await channel.assertExchange('events', 'topic', { durable: true });
+      console.log("RabbitMQ connected (Register Service)");
       return;
     } catch (err) {
       retries--;

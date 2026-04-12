@@ -8,7 +8,8 @@ async function publishEvent(exchange, routingKey, message) {
     channel.publish(
         exchange,
         routingKey,
-        Buffer.from(JSON.stringify(message))
+        Buffer.from(JSON.stringify(message)),
+        { persistent: true }
     );
 
     console.log(`📤 Event published: ${routingKey}`);

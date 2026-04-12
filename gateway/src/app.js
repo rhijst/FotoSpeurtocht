@@ -1,9 +1,18 @@
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const jwt = require('jsonwebtoken');
+const { createServiceBreaker, circuitBreakerGuard } = require('./circuitBreaker');
 require('dotenv').config();
 
 const app = express();
+
+// Circuit breakers per microservice
+const breakers = {
+  join:     createServiceBreaker('join-service',     process.env.JOIN_SERVICE_URL),
+  target:   createServiceBreaker('target-service',   process.env.TARGET_SERVICE_URL),
+  score:    createServiceBreaker('score-service',    process.env.SCORE_SERVICE_URL),
+  register: createServiceBreaker('register-service', process.env.REGISTER_SERVICE_URL),
+};
 
 //CORS middleware
 app.use((req, res, next) => {
@@ -20,6 +29,13 @@ Auth - Login
 app.post('/auth/login', express.json(), async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Circuit breaker check vóór aanroep join-service
+    await breakers.join.fire().catch(() => {
+      const err = new Error('join-service niet bereikbaar');
+      err.status = 503;
+      throw err;
+    });
 
     // Verify credentials via join-service (database-per-service)
     const response = await fetch(`${process.env.JOIN_SERVICE_URL}/auth/verify`, {
@@ -45,6 +61,12 @@ app.post('/auth/login', express.json(), async (req, res) => {
 
     res.json({ token });
   } catch (err) {
+    if (err.status === 503) {
+      return res.status(503).json({
+        error: 'Service tijdelijk niet beschikbaar. Probeer het later opnieuw.',
+        service: 'join-service',
+      });
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -86,6 +108,7 @@ Auth - Register (proxied to join-service)
 */
 app.use(
   '/auth',
+  circuitBreakerGuard(breakers.join, 'join-service'),
   createProxyMiddleware({
     target: process.env.JOIN_SERVICE_URL,
     changeOrigin: true,
@@ -100,6 +123,7 @@ Target Service
 */
 app.use(
   '/targets',
+  circuitBreakerGuard(breakers.target, 'target-service'),
   createProxyMiddleware({
     target: process.env.TARGET_SERVICE_URL,
     changeOrigin: true,
@@ -114,6 +138,7 @@ Score Service
 */
 app.use(
   '/score',
+  circuitBreakerGuard(breakers.score, 'score-service'),
   createProxyMiddleware({
     target: process.env.SCORE_SERVICE_URL,
     changeOrigin: true,
@@ -128,6 +153,7 @@ Join Service (Participants)
 */
 app.use(
   '/participants',
+  circuitBreakerGuard(breakers.register, 'register-service'),
   createProxyMiddleware({
     target: process.env.REGISTER_SERVICE_URL,
     changeOrigin: true,

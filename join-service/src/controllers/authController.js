@@ -49,7 +49,7 @@ exports.register = async (req, res) => {
         });
 
         const channel = getChannel();
-        channel.publish('events', 'user.registered', Buffer.from(JSON.stringify({ email: user.email })));
+        channel.publish('events', 'user.registered', Buffer.from(JSON.stringify({ email: user.email })), { persistent: true });
 
         res.status(201).json({
             id: user._id,
