@@ -50,6 +50,47 @@
       <button onclick="login()">Login &amp; save token</button>
       <div class="response" id="login-response"></div>
     </div>
+    
+    <!-- CREATE TARGET -->
+    <div class="card">
+      <h2>Create Target</h2>
+      <div>
+        <label>Title</label>
+        <input type="text" id="t-title" placeholder="My target" />
+      </div>
+      <div>
+        <label>Description</label>
+        <input type="text" id="t-description" placeholder="Optional description" />
+      </div>
+      <div>
+        <label>Location name</label>
+        <input type="text" id="t-location" placeholder="Amsterdam" />
+      </div>
+      <div class="row">
+        <div>
+          <label>Latitude</label>
+          <input type="number" id="t-lat" placeholder="52.37" step="any" />
+        </div>
+        <div>
+          <label>Longitude</label>
+          <input type="number" id="t-lng" placeholder="4.89" step="any" />
+        </div>
+        <div>
+          <label>Radius (m)</label>
+          <input type="number" id="t-radius" value="100" />
+        </div>
+      </div>
+      <div>
+        <label>Deadline</label>
+        <input type="datetime-local" id="t-deadline" />
+      </div>
+      <div>
+        <label>Image</label>
+        <input type="file" id="t-image" accept="image/*" />
+      </div>
+      <button onclick="createTarget()">Create Target</button>
+      <div class="response" id="create-target-response"></div>
+    </div>
 
     <!-- JOIN TARGET -->
     <div class="card">
@@ -102,46 +143,7 @@
       <div class="response" id="targets-response"></div>
     </div>
 
-    <!-- CREATE TARGET -->
-    <div class="card">
-      <h2>Create Target</h2>
-      <div>
-        <label>Title</label>
-        <input type="text" id="t-title" placeholder="My target" />
-      </div>
-      <div>
-        <label>Description</label>
-        <input type="text" id="t-description" placeholder="Optional description" />
-      </div>
-      <div>
-        <label>Location name</label>
-        <input type="text" id="t-location" placeholder="Amsterdam" />
-      </div>
-      <div class="row">
-        <div>
-          <label>Latitude</label>
-          <input type="number" id="t-lat" placeholder="52.37" step="any" />
-        </div>
-        <div>
-          <label>Longitude</label>
-          <input type="number" id="t-lng" placeholder="4.89" step="any" />
-        </div>
-        <div>
-          <label>Radius (m)</label>
-          <input type="number" id="t-radius" value="100" />
-        </div>
-      </div>
-      <div>
-        <label>Deadline</label>
-        <input type="datetime-local" id="t-deadline" />
-      </div>
-      <div>
-        <label>Image</label>
-        <input type="file" id="t-image" accept="image/*" />
-      </div>
-      <button onclick="createTarget()">Create Target</button>
-      <div class="response" id="create-target-response"></div>
-    </div>
+
 
   </div>
 
